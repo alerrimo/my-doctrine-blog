@@ -158,13 +158,14 @@
                     <!-- 3 clic/tap ravvicinati sul nome aprono l'accesso riservato -->
                     <a href="#" id="brandLink" onclick="handleBrandClick(event)" class="flex items-center gap-2 group min-w-0 select-none">
                         <span id="blogNameDisplay" class="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors truncate">
-                            Alessio Roma
+                            Nome Cognome
                         </span>
                     </a>
 
                     <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-600 dark:text-gray-300" aria-label="Navigazione principale">
                         <a href="#" onclick="event.preventDefault(); goHome();" class="hover:text-brand-600 dark:hover:text-white transition">Home</a>
                         <a href="#" onclick="event.preventDefault(); showSection('publicView');" class="hover:text-brand-600 dark:hover:text-white transition">Articoli</a>
+                        <a href="#" onclick="event.preventDefault(); showSection('sourcesView');" class="hover:text-brand-600 dark:hover:text-white transition">Fonti</a>
                         <a href="#" onclick="event.preventDefault(); openModal('contactModal');" class="hover:text-brand-600 dark:hover:text-white transition">Contatti</a>
                     </nav>
                 </div>
@@ -191,6 +192,7 @@
                 <nav id="mobileMenu" class="hidden w-full order-last md:hidden mt-3 pt-2 border-t border-gray-200 dark:border-slate-800" aria-label="Menu mobile">
                     <a href="#" onclick="event.preventDefault(); goHome();" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Home</a>
                     <a href="#" onclick="event.preventDefault(); showSection('publicView');" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Articoli</a>
+                    <a href="#" onclick="event.preventDefault(); showSection('sourcesView');" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Fonti</a>
                     <a href="#" onclick="event.preventDefault(); closeMobilePanels(); openModal('contactModal');" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Contatti</a>
                 </nav>
             </div>
@@ -216,13 +218,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Benvenuti nel mio Blog</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
-                        Ciao a tutti! 👋
-
-                    Non sono un teologo né un accademico: sono semplicemente un ragazzo di 21 anni che si è appassionato allo studio della fede e degli argomenti teologici.
-
-                    Ho creato questo sito web per condividere il mio percorso di crescita e apprendimento. Il mio obiettivo è imparare sul campo, mettendomi alla prova attraverso l'esegesi biblica e il confronto costruttivo con diverse dottrine e denominazioni.
-
-                    Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiaro, pulito e ordinato, permettendo a chiunque voglia approfondire o condividere questi contenuti di farlo con la comodità e la fruibilità di una pagina web dedicata.
+                        Qui condivido le mie riflessioni, i miei saggi e scritti personali. Puoi leggere tutti i contenuti direttamente online.
                     </p>
                     <button onclick="openModal('contactModal')" class="w-full min-h-[44px] bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 font-semibold py-2 rounded-xl text-sm transition">
                         Inviami un messaggio
@@ -286,6 +282,17 @@
                 </div>
             </div>
         </article>
+    </main>
+
+    <!-- Pagina pubblica Fonti: libri letti -->
+    <main id="sourcesView" class="hidden flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Fonti</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">I libri che ho letto, raccolti qui per chi volesse approfondire.</p>
+        </div>
+        <ul id="sourcesList" class="space-y-4">
+            <!-- Books injected via JS -->
+        </ul>
     </main>
 
     <!-- Dashboard riservata (accessibile solo dopo il passcode) -->
@@ -359,6 +366,45 @@
 
                     <div id="cmsPostList" class="space-y-3 max-h-[60vh] lg:max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
                         <!-- Dynamic list of post items -->
+                    </div>
+                </div>
+
+                <!-- Fonti: libri letti -->
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+                    <h2 id="sourceFormTitle" class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
+                        <span>Fonti: libri letti</span>
+                        <span id="sourceCountBadge" class="bg-brand-100 text-brand-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                    </h2>
+
+                    <form id="sourceForm" onsubmit="handleSaveSource(event)" class="space-y-3 mb-5">
+                        <input type="hidden" id="sourceId" value="">
+                        <div>
+                            <label for="sourceTitleInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Titolo del libro</label>
+                            <input type="text" id="sourceTitleInput" required autocomplete="off" placeholder="Es. Il nome della rosa" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label for="sourceAuthorInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Autore</label>
+                            <input type="text" id="sourceAuthorInput" required autocomplete="off" placeholder="Es. Umberto Eco" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label for="sourceNoteInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Nota (facoltativa)</label>
+                            <textarea id="sourceNoteInput" rows="2" placeholder="Due righe su cosa ne pensi o perché lo consigli..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                        </div>
+                        <div>
+                            <label for="sourceUrlInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Link (facoltativo)</label>
+                            <input type="url" id="sourceUrlInput" autocomplete="off" inputmode="url" placeholder="https://..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                            <button type="button" onclick="resetSourceForm()" class="w-full sm:w-auto min-h-[44px] px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 text-sm font-medium hover:bg-gray-100 dark:hover:bg-slate-800">Annulla</button>
+                            <button type="submit" class="w-full sm:w-auto min-h-[44px] px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-book"></i>
+                                <span id="sourceSaveText">Aggiungi libro</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="cmsSourceList" class="space-y-3 max-h-[50vh] lg:max-h-[400px] overflow-y-auto custom-scrollbar pr-1">
+                        <!-- Dynamic list of books -->
                     </div>
                 </div>
 
@@ -449,6 +495,18 @@
         const LOCK_MS = 30000;
         const BRAND_CLICK_WINDOW_MS = 800;
 
+        const SOURCES_KEY = 'blog_sources_db';
+        const SOURCES_REMOVED_KEY = 'blog_sources_removed';
+
+        // Libri visibili a tutti i lettori: modificare qui l'elenco base
+        const INITIAL_SOURCES = [
+            { id: 'b1', title: "I Don't Have Enough Faith to Be an Atheist", author: 'Norman Geisler e Frank Turek', note: '' },
+            { id: 'b2', title: 'On Guard', author: 'William Lane Craig', note: '' },
+            { id: 'b3', title: 'Reasonable Faith', author: 'William Lane Craig', note: '' },
+            { id: 'b4', title: 'New Testament Exegesis', author: 'Gordon Fee', note: '' },
+            { id: 'b5', title: 'I fatti della salvezza', author: 'Brian Abasciano', note: 'Disponibile solo in italiano.', url: 'https://evangelicalarminians.org/the-facts-of-salvation-a-summary-of-arminian-theologythe-biblical-doctrines-of-grace/', urlLabel: 'Articolo originale (inglese)' }
+        ];
+        let sources = [];
         let posts = [];
         let activeTag = 'All';
         let activePostId = null;
@@ -484,12 +542,45 @@
             }
         }
 
+        function readJsonArray(key) {
+            try {
+                const raw = localStorage.getItem(key);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // I libri del file compaiono sempre (anche ai lettori che hanno già visitato il sito),
+        // a meno che tu non li abbia eliminati dalla dashboard
+        function loadSources() {
+            const stored = readJsonArray(SOURCES_KEY);
+            const removed = readJsonArray(SOURCES_REMOVED_KEY);
+            const known = new Set(stored.map(s => s.id));
+            const missing = INITIAL_SOURCES
+                .filter(s => !known.has(s.id) && !removed.includes(s.id))
+                .map(s => ({ ...s }));
+            sources = stored.concat(missing);
+        }
+
+        function saveSources() {
+            try {
+                localStorage.setItem(SOURCES_KEY, JSON.stringify(sources));
+            } catch (e) {
+                alert('Impossibile salvare: il browser sta bloccando la memoria locale (navigazione privata?).');
+            }
+        }
+
         window.onload = function () {
             initStore();
+            loadSources();
             applyTheme(document.documentElement.classList.contains('dark'));
             renderTopics();
             renderBlogFeed();
             renderCMSPostList();
+            renderSources();
+            renderCMSSourceList();
             updateSettingsUI();
         };
 
@@ -526,8 +617,10 @@
 
             document.getElementById('publicView').classList.add('hidden');
             document.getElementById('singlePostView').classList.add('hidden');
+            document.getElementById('sourcesView').classList.add('hidden');
             document.getElementById('cmsView').classList.add('hidden');
             document.getElementById(sectionId).classList.remove('hidden');
+            if (sectionId === 'sourcesView') renderSources();
 
             closeMobilePanels();
             scrollToTop();
@@ -1073,6 +1166,137 @@
             document.getElementById('postId').value = '';
             document.getElementById('editorFormTitle').innerText = "Scrivi un Articolo";
             document.getElementById('saveBtnText').innerText = "Pubblica Articolo";
+        }
+
+        // ---------- Fonti: libri letti ----------
+        // Accetta solo link http/https (blocca javascript: e simili)
+        function safeUrl(u) {
+            if (!u) return '';
+            try {
+                const parsed = new URL(u);
+                return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.href : '';
+            } catch (e) {
+                return '';
+            }
+        }
+        function renderSources() {
+            const list = document.getElementById('sourcesList');
+
+            if (sources.length === 0) {
+                list.innerHTML = `
+                    <li class="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800">
+                        <i class="fa-solid fa-book-open text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-500">Nessun libro in elenco per ora.</p>
+                    </li>
+                `;
+                return;
+            }
+
+            list.innerHTML = sources.map(s => `
+                <li class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm flex gap-4">
+                    <div class="w-10 h-10 shrink-0 rounded-lg bg-brand-50 dark:bg-slate-800 text-brand-600 dark:text-brand-400 flex items-center justify-center">
+                        <i class="fa-solid fa-book"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 class="font-bold text-lg leading-snug text-gray-900 dark:text-white">${escapeHtml(s.title)}</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(s.author)}</p>
+                        ${s.note ? `<p class="mt-2 text-sm text-gray-700 dark:text-gray-300 leading-relaxed" style="white-space: pre-line">${escapeHtml(s.note)}</p>` : ''}
+                        ${safeUrl(s.url) ? `<a href="${escapeHtml(safeUrl(s.url))}" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex items-center gap-2 min-h-[44px] sm:min-h-0 text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline"><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> ${escapeHtml(s.urlLabel || 'Vai alla fonte')}</a>` : ''}
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function renderCMSSourceList() {
+            const container = document.getElementById('cmsSourceList');
+            document.getElementById('sourceCountBadge').innerText = sources.length;
+
+            if (sources.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400">Nessun libro presente.</p>`;
+                return;
+            }
+
+            container.innerHTML = sources.map(s => `
+                <div class="p-3 bg-gray-50 dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-800 flex justify-between items-center gap-3">
+                    <div class="overflow-hidden">
+                        <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 truncate">${escapeHtml(s.title)}</h4>
+                        <span class="text-xs text-gray-400 block truncate">${escapeHtml(s.author)}</span>
+                    </div>
+                    <div class="flex items-center shrink-0">
+                        <button onclick="editSource('${s.id}')" class="w-11 h-11 flex items-center justify-center text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Modifica" aria-label="Modifica libro">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteSource('${s.id}')" class="w-11 h-11 flex items-center justify-center text-red-600 hover:bg-red-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Elimina" aria-label="Elimina libro">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleSaveSource(event) {
+            event.preventDefault();
+            if (!adminUnlocked) { openAdminAccess(); return; }
+
+            const idInput = document.getElementById('sourceId').value;
+            const title = document.getElementById('sourceTitleInput').value.trim();
+            const author = document.getElementById('sourceAuthorInput').value.trim();
+            const note = document.getElementById('sourceNoteInput').value.trim();
+            const url = safeUrl(document.getElementById('sourceUrlInput').value.trim());
+            if (!title || !author) return;
+
+            if (idInput) {
+                const source = sources.find(s => s.id === idInput);
+                if (source) {
+                    source.title = title;
+                    source.author = author;
+                    source.note = note;
+                    source.url = url;
+                }
+            } else {
+                sources.unshift({ id: Date.now().toString(), title: title, author: author, note: note, url: url });
+            }
+
+            saveSources();
+            renderSources();
+            renderCMSSourceList();
+            resetSourceForm();
+        }
+
+        function editSource(sourceId) {
+            if (!adminUnlocked) return;
+            const source = sources.find(s => s.id === sourceId);
+            if (!source) return;
+
+            document.getElementById('sourceId').value = source.id;
+            document.getElementById('sourceTitleInput').value = source.title;
+            document.getElementById('sourceAuthorInput').value = source.author;
+            document.getElementById('sourceNoteInput').value = source.note || '';
+            document.getElementById('sourceUrlInput').value = safeUrl(source.url);
+            document.getElementById('sourceSaveText').innerText = 'Aggiorna libro';
+            document.getElementById('sourceTitleInput').scrollIntoView({ block: 'center' });
+            document.getElementById('sourceTitleInput').focus();
+        }
+
+        function deleteSource(sourceId) {
+            if (!adminUnlocked) return;
+            if (confirm('Vuoi eliminare questo libro dall\'elenco?')) {
+                if (INITIAL_SOURCES.some(s => s.id === sourceId)) {
+                    const removed = readJsonArray(SOURCES_REMOVED_KEY);
+                    if (!removed.includes(sourceId)) removed.push(sourceId);
+                    try { localStorage.setItem(SOURCES_REMOVED_KEY, JSON.stringify(removed)); } catch (e) {}
+                }
+                sources = sources.filter(s => s.id !== sourceId);
+                saveSources();
+                renderSources();
+                renderCMSSourceList();
+            }
+        }
+
+        function resetSourceForm() {
+            document.getElementById('sourceForm').reset();
+            document.getElementById('sourceId').value = '';
+            document.getElementById('sourceSaveText').innerText = 'Aggiungi libro';
         }
 
         // ---------- Modali ----------
