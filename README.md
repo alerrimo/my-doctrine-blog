@@ -1,18 +1,19 @@
 # my-doctrine-blog
 
 ✝️ Welcome to my theology blog!
-Hi, everyone! 👋
+Hello everyone! 👋
 
-I’m neither a theologian nor an academic: I’m simply a 21-year-old guy who’s developed a passion for studying and reflecting on topics related to doctrine and faith.
+I'm not a theologian or an academic—just a 21-year-old passionate about studying faith and theological topics.
 
-I created this project to bring together my readings, thoughts, and theological insights in a single, accessible space. The goal of this website is to offer a well-organized and easy-to-navigate platform, designed both for those who want to explore these topics for the first time and for those who want to share or read theological content with the convenience and clarity of a dedicated webpage.
+I created this website to share my learning journey. My goal is to learn by doing, putting myself to the test through biblical exegesis and a constructive commentary on different doctrines and denominations.
 
-If you’re curious, have suggestions, or simply want to exchange opinions, you’ve come to the right place!
+This space was built to gather analyses, readings, and reflections in a clean, organized, and accessible way, allowing anyone who wants to explore or share these topics to do so with the convenience of a dedicated web page.
 
-💡 What you’ll find here:
+💡 What you'll find here:
+Exegesis & Textual Analysis: Deep dives and direct study of Scripture to better understand its context and meaning.
 
-Articles and summaries on topics of doctrine and theology
+Doctrinal & Denominational Commentary: Comparisons and insights into various traditions and perspectives within Christianity.
 
-Personal reflections on readings and texts
+Personal Reflections: A logbook of a young person on a continuous journey of learning.
 
-A clean, readable format that’s easy to share with anyone
+💬 If you're curious, have suggestions, or want to exchange ideas, you're more than welcome here!
