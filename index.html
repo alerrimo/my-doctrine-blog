@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="it" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Blog & Publishing Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#1d4ed8',
+                            600: '#1e40af',
+                            700: '#1d3557',
+                            900: '#0f172a'
+                        },
+                        navyCard: '#091527'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Newsreader', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Styles & Rich Text Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .prose h1, .prose h2, .prose h3 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            color: inherit;
+        }
+        .prose p {
+            margin-bottom: 1.25em;
+            line-height: 1.8;
+            font-size: 1.125rem;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(107, 114, 128, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Top Mode Switcher Banner (CMS vs Public View) -->
+    <div class="bg-slate-900 text-white text-xs sm:text-sm py-2 px-4 border-b border-slate-800 flex justify-between items-center sticky top-0 z-50 shadow-md">
+        <div class="flex items-center gap-2">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-medium text-slate-300">Stato Piattaforma: <strong class="text-white">Attiva</strong></span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="toggleAppModeBtn" onclick="toggleAppMode()" class="bg-brand-500 hover:bg-brand-600 text-white font-medium px-3 py-1 rounded-md text-xs transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span id="appModeLabel">Passa a Dashboard Scrittore (CMS)</span>
+            </button>
+            <button onclick="toggleDarkMode()" class="text-slate-400 hover:text-white p-1 rounded transition" title="Cambia Tema">
+                <i id="themeIcon" class="fa-solid fa-moon text-base"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN HEADER / NAVIGATION -->
+    <header class="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo & Brand Name -->
+                <div class="flex items-center gap-8">
+                    <a href="#" onclick="showSection('publicView'); filterByTag('All');" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 rounded-lg bg-brand-700 dark:bg-brand-500 text-white flex items-center justify-center text-xl font-bold shadow-md group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-cross"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-extrabold text-lg sm:text-xl tracking-wider text-slate-900 dark:text-white leading-none uppercase">ANSWERING</span>
+                            <span class="font-bold text-base sm:text-lg tracking-widest text-brand-600 dark:text-brand-400 leading-none uppercase">THEOLOGY</span>
+                        </div>
+                    </a>
+
+                    <!-- Desktop Nav Links -->
+                    <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-600 dark:text-gray-300">
+                        <a href="#" onclick="showSection('publicView'); filterByTag('All');" class="hover:text-brand-600 dark:hover:text-white transition">Home</a>
+                        <a href="#" onclick="showSection('publicView');" class="hover:text-brand-600 dark:hover:text-white transition">Tags</a>
+                        <a href="#" onclick="scrollToNewsletter()" class="hover:text-brand-600 dark:hover:text-white transition flex items-center gap-1">
+                            Socials <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </a>
+                        <a href="#" onclick="scrollToNewsletter()" class="hover:text-brand-600 dark:hover:text-white transition flex items-center gap-1">
+                            Donation <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </a>
+                        <a href="#" onclick="openModal('contactModal')" class="hover:text-brand-600 dark:hover:text-white transition">Contatti</a>
+                    </nav>
+                </div>
+
+                <!-- Right Header Controls -->
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <!-- Search Input Widget -->
+                    <div class="relative hidden sm:block">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Cerca articoli..." class="pl-9 pr-4 py-1.5 text-sm bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 w-36 focus:w-56 transition-all">
+                    </div>
+
+                    <button onclick="openModal('loginModal')" class="text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-slate-700 px-4 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+                        Log in
+                    </button>
+                    <button onclick="scrollToNewsletter()" class="text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 px-4 py-1.5 rounded-md shadow-sm transition">
+                        Iscriviti
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- PUBLIC BLOG VIEW -->
+    <main id="publicView" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Tag Navigation Filter Bar -->
+        <div class="border-b border-gray-200 dark:border-slate-800 pb-3 mb-8 overflow-x-auto custom-scrollbar">
+            <div id="tagBar" class="flex space-x-6 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                <!-- Dynamic Tags populated via JS -->
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Main Content Column (Blog Feed) -->
+            <section class="lg:col-span-8 space-y-6" id="blogFeedContainer">
+                <!-- Blog cards injected via JS -->
+            </section>
+
+            <!-- Right Sidebar Column -->
+            <aside class="lg:col-span-4 space-y-6">
+                <!-- Dark Navy Newsletter Widget (Ghost Style) -->
+                <div class="bg-navyCard text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-slate-800">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                        <i class="fa-solid fa-paper-plane text-9xl"></i>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-bold mb-3 tracking-tight text-white leading-snug">
+                        Answering Theology Newsletter
+                    </h3>
+                    <p class="text-slate-300 text-sm mb-6 leading-relaxed">
+                        Iscriviti alla newsletter gratuita per ricevere gli ultimi studi, articoli e aggiornamenti direttamente nella tua email.
+                    </p>
+                    <form onsubmit="handleSubscribe(event)" class="space-y-3">
+                        <div>
+                            <input type="email" required id="newsletterEmail" placeholder="La tua email..." class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3 rounded-lg text-sm transition shadow-md">
+                            Iscriviti Ora
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Featured Links Box -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
+                    <h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">
+                        Argomenti In Evidenza
+                    </h4>
+                    <ul class="space-y-3 text-sm font-medium">
+                        <li>
+                            <a href="#" onclick="filterByTag('Bible Study')" class="text-brand-600 dark:text-brand-400 hover:underline flex justify-between items-center">
+                                <span>Studi Biblici ed Esegesi</span>
+                                <i class="fa-solid fa-arrow-right text-xs opacity-70"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="filterByTag('Theology')" class="text-brand-600 dark:text-brand-400 hover:underline flex justify-between items-center">
+                                <span>Teologia Critica</span>
+                                <i class="fa-solid fa-arrow-right text-xs opacity-70"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="filterByTag('History')" class="text-brand-600 dark:text-brand-400 hover:underline flex justify-between items-center">
+                                <span>Storia delle Religioni</span>
+                                <i class="fa-solid fa-arrow-right text-xs opacity-70"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Info Box -->
+                <div class="bg-gray-100 dark:bg-slate-900/60 rounded-2xl p-6 border border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    <p class="mb-2"><strong>Nota dell'Autore:</strong> Questo blog è una piattaforma autonoma di saggistica e divulgazione. I contenuti possono essere letti liberamente senza la necessità di scaricare alcun file esterno.</p>
+                    <p>&copy; 2026 Answering Theology. Tutti i diritti riservati.</p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- READ POST SINGLE VIEW (Hidden by default) -->
+    <main id="singlePostView" class="hidden flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <button onclick="showSection('publicView')" class="mb-6 inline-flex items-center text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline gap-2">
+            <i class="fa-solid fa-arrow-left"></i> Torna a tutti gli articoli
+        </button>
+
+        <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6 sm:p-10 shadow-sm">
+            <div id="postHeader" class="border-b border-gray-200 dark:border-slate-800 pb-6 mb-8">
+                <!-- Injected Header Data -->
+            </div>
+
+            <!-- Full Article Text Body -->
+            <div id="postBody" class="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 leading-relaxed space-y-4">
+                <!-- Injected Content -->
+            </div>
+
+            <!-- Post Footer & Social Share -->
+            <div class="mt-12 pt-6 border-t border-gray-200 dark:border-slate-800 flex flex-wrap justify-between items-center gap-4">
+                <div id="postTagsList" class="flex flex-wrap gap-2"></div>
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                    <span>Condividi:</span>
+                    <button onclick="copyCurrentLink()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-600 dark:text-gray-300" title="Copia Link">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                    <button onclick="alert('Pulsante condividi attivato!')" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-600 dark:text-gray-300">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </button>
+                    <button onclick="alert('Pulsante condividi attivato!')" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-600 dark:text-gray-300">
+                        <i class="fa-brands fa-facebook"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="mt-12 pt-8 border-t border-gray-200 dark:border-slate-800">
+                <h3 class="text-xl font-bold mb-6">Commenti (<span id="commentCount">0</span>)</h3>
+                
+                <!-- Add Comment Form -->
+                <form onsubmit="handleAddComment(event)" class="mb-8 space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input type="text" id="commentAuthor" required placeholder="Il tuo nome..." class="px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <textarea id="commentText" required rows="3" placeholder="Scrivi un commento pubblico..." class="w-full px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg transition">Invia Commento</button>
+                </form>
+
+                <!-- Comment List -->
+                <div id="commentsList" class="space-y-4">
+                    <!-- Dynamic Comments -->
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <!-- WRITER DASHBOARD / CMS VIEW (Hidden by default) -->
+    <main id="cmsView" class="hidden flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Dashboard CMS Scrittore</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Crea e pubblica articoli istantaneamente. Tutto viene salvato automaticamente nel tuo browser.</p>
+            </div>
+            <button onclick="resetEditorForm()" class="bg-gray-200 dark:bg-slate-800 hover:bg-gray-300 text-sm font-medium px-4 py-2 rounded-lg transition">
+                <i class="fa-solid fa-plus mr-1"></i> Nuovo Articolo
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Writer Form Column -->
+            <div class="lg:col-span-7 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+                <h2 id="editorFormTitle" class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800">Scrivi Nuovo Articolo</h2>
+                
+                <form id="articleForm" onsubmit="handleSaveArticle(event)" class="space-y-4">
+                    <input type="hidden" id="postId" value="">
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Titolo dell'Articolo</label>
+                        <input type="text" id="postTitleInput" required placeholder="Es. L'Esegesi del Servo di Isaia..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 font-bold text-lg">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nome Autore</label>
+                            <input type="text" id="postAuthorInput" required placeholder="Es. Mario Rossi" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tag/Categoria (separati da virgola)</label>
+                            <input type="text" id="postTagsInput" required placeholder="Es. Bible Study, Theology" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Estratto / Riassunto Breve</label>
+                        <textarea id="postExcerptInput" required rows="2" placeholder="Scrivi una breve introduzione che apparirà nella scheda dell'articolo..." class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Contenuto Completo dell'Articolo</label>
+                        <textarea id="postContentInput" required rows="10" placeholder="Scrivi il tuo testo completo qui. Puoi andare a capo normalmente per creare i paragrafi..." class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-slate-800">
+                        <button type="button" onclick="resetEditorForm()" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 text-sm font-medium hover:bg-gray-100 dark:hover:bg-slate-800">Annulla</button>
+                        <button type="submit" class="px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-md transition flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span id="saveBtnText">Pubblica Ora</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Article Management Table / List -->
+            <div class="lg:col-span-5 space-y-4">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+                    <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
+                        <span>Gestisci Articoli</span>
+                        <span id="postCountBadge" class="bg-brand-100 text-brand-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                    </h2>
+
+                    <div id="cmsPostList" class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
+                        <!-- Dynamic list of post items for editing/deletion -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Sticky Floating Action Button (Ghost Newsletter Pop) -->
+    <div class="fixed bottom-6 right-6 z-40">
+        <button onclick="scrollToNewsletter()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 transition transform hover:scale-105">
+            <i class="fa-solid fa-envelope"></i>
+            <span class="text-sm font-semibold">Iscriviti per Aggiornamenti</span>
+        </button>
+    </div>
+
+    <!-- Modals (Login & Contact) -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xl relative">
+            <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold mb-4">Accedi al tuo Account</h3>
+            <form onsubmit="event.preventDefault(); alert('Accesso effettuato con successo!'); closeModal('loginModal');" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Email</label>
+                    <input type="email" required placeholder="la.tua@email.com" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Password</label>
+                    <input type="password" required placeholder="••••••••" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow">Entra</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="contactModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xl relative">
+            <button onclick="closeModal('contactModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold mb-4">Contatta l'Autore</h3>
+            <form onsubmit="event.preventDefault(); alert('Messaggio inviato!'); closeModal('contactModal');" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Il tuo Nome</label>
+                    <input type="text" required placeholder="Nome e Cognome" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Messaggio</label>
+                    <textarea required rows="4" placeholder="Scrivi qui il tuo messaggio..." class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow">Invia Messaggio</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Initial Mock Data (Default articles)
+        const INITIAL_POSTS = [
+            {
+                id: '1',
+                title: "Isaiah's Priestly Servant",
+                author: "Sam Shamoun",
+                date: "17 Sep 2026",
+                tags: ["Atonement", "Isaiah", "Bible Study"],
+                excerpt: "Isaiah speaks of a righteous Servant who gives up his soul/life as a guilt offering so as to bear the sins of many: 'But Yahweh was pleased To crush Him, putting Him to grief...'",
+                content: `Isaiah speaks of a righteous Servant who gives up his soul/life as a guilt offering so as to bear the sins of many: "But Yahweh was pleased To crush Him, putting Him to grief; If You would place His soul as a guilt offering, He will see His seed, He will prolong His days, And the good pleasure of Yahweh will prosper in His hand."\n\nThis profound prophecy in Isaiah 53 highlights the substitutionary atonement and the priestly role fulfilled by the Messiah. Throughout the ancient texts, the guilt offering required explicit sacrificial purity.\n\nBy examining the original Hebrew phrasing, we see a clear connection between the Levitical priesthood and the Servant's ultimate mission.`,
+                comments: [
+                    { author: "Davide M.", date: "18 Sep 2026", text: "Studio eccellente ed analisi linguistica molto precisa." }
+                ]
+            },
+            {
+                id: '2',
+                title: "Historical Context of Early Creedal Texts",
+                author: "Marco Valenti",
+                date: "12 Sep 2026",
+                tags: ["History", "Theology"],
+                excerpt: "An in-depth analysis regarding the earliest oral traditions handed down in the first century and their transmission across early manuscript fragments.",
+                content: `An in-depth analysis regarding the earliest oral traditions handed down in the first century and their transmission across early manuscript fragments.\n\nWhen evaluating historical documents, scholars place significant weight on proximity to the original events. Creedal formulas such as 1 Corinthians 15:3-5 demonstrate extremely early origin dating back to within years of the event itself.`,
+                comments: []
+            }
+        ];
+
+        // State variables
+        let posts = [];
+        let activeTag = 'All';
+        let activePostId = null;
+        let currentMode = 'public'; // 'public' or 'cms'
+
+        // Load posts from LocalStorage or fallback to Default Initial Posts
+        function initStore() {
+            const stored = localStorage.getItem('blog_posts_db');
+            if (stored) {
+                try {
+                    posts = JSON.parse(stored);
+                } catch(e) {
+                    posts = INITIAL_POSTS;
+                }
+            } else {
+                posts = INITIAL_POSTS;
+                savePostsToStorage();
+            }
+        }
+
+        function savePostsToStorage() {
+            localStorage.setItem('blog_posts_db', JSON.stringify(posts));
+        }
+
+        // Initialize App on DOM Load
+        window.onload = function() {
+            initStore();
+            renderTagBar();
+            renderBlogFeed();
+            renderCMSPostList();
+        }
+
+        // Toggle Dark/Light Mode
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon text-base';
+            } else {
+                html.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun text-base';
+            }
+        }
+
+        // Toggle Application View Mode (Public View vs CMS)
+        function toggleAppMode() {
+            const btnLabel = document.getElementById('appModeLabel');
+            if (currentMode === 'public') {
+                currentMode = 'cms';
+                btnLabel.innerText = "Torna alla Vista Pubblica Blog";
+                showSection('cmsView');
+            } else {
+                currentMode = 'public';
+                btnLabel.innerText = "Passa a Dashboard Scrittore (CMS)";
+                showSection('publicView');
+            }
+        }
+
+        // Switch visible main sections
+        function showSection(sectionId) {
+            document.getElementById('publicView').classList.add('hidden');
+            document.getElementById('singlePostView').classList.add('hidden');
+            document.getElementById('cmsView').classList.add('hidden');
+
+            document.getElementById(sectionId).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Extract unique tags and render Tag Filter Bar
+        function renderTagBar() {
+            const tagBar = document.getElementById('tagBar');
+            const allTags = new Set(['All', 'Latest']);
+            posts.forEach(p => p.tags.forEach(t => allTags.add(t)));
+
+            tagBar.innerHTML = '';
+            Array.from(allTags).forEach(tag => {
+                const isActive = activeTag === tag;
+                const button = document.createElement('button');
+                button.className = `transition font-semibold hover:text-brand-600 dark:hover:text-white ${isActive ? 'text-brand-600 dark:text-white border-b-2 border-brand-600 pb-1' : ''}`;
+                button.innerText = tag.toLowerCase();
+                button.onclick = () => filterByTag(tag);
+                tagBar.appendChild(button);
+            });
+        }
+
+        // Filter Posts by Selected Tag
+        function filterByTag(tag) {
+            activeTag = tag;
+            renderTagBar();
+            renderBlogFeed();
+        }
+
+        // Search Input Handler
+        function handleSearch() {
+            renderBlogFeed();
+        }
+
+        // Render Public Blog Feed Cards
+        function renderBlogFeed() {
+            const container = document.getElementById('blogFeedContainer');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            let filtered = posts;
+
+            if (activeTag !== 'All' && activeTag !== 'Latest') {
+                filtered = filtered.filter(p => p.tags.map(t=>t.toLowerCase()).includes(activeTag.toLowerCase()));
+            }
+
+            if (searchQuery) {
+                filtered = filtered.filter(p => 
+                    p.title.toLowerCase().includes(searchQuery) || 
+                    p.excerpt.toLowerCase().includes(searchQuery) ||
+                    p.tags.some(t => t.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800">
+                        <i class="fa-regular fa-folder-open text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-500">Nessun articolo trovato per questo criterio.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(post => `
+                <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm hover:shadow-md transition group">
+                    <div class="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-2">
+                        <span class="bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">Public</span>
+                    </div>
+
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-3 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition cursor-pointer" onclick="openSinglePost('${post.id}')">
+                        ${escapeHtml(post.title)}
+                    </h2>
+
+                    <p class="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed mb-6 line-clamp-3">
+                        ${escapeHtml(post.excerpt)}
+                    </p>
+
+                    <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100 dark:border-slate-800/80 text-xs sm:text-sm text-gray-500">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-700 dark:text-slate-200">
+                                ${post.author.charAt(0)}
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-900 dark:text-gray-200 block leading-tight">${escapeHtml(post.author)}</span>
+                                <span class="text-gray-400 text-xs">${post.date}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            ${post.tags.map(t => `<span class="text-gray-500 dark:text-gray-400 font-medium hover:underline cursor-pointer" onclick="filterByTag('${t}')">${escapeHtml(t)}</span>`).join(' • ')}
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // Open Single Article Full Reader View
+        function openSinglePost(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+
+            activePostId = postId;
+
+            const headerContainer = document.getElementById('postHeader');
+            headerContainer.innerHTML = `
+                <div class="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-3">
+                    <span class="bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">Public</span>
+                    <span>•</span>
+                    <span class="text-gray-400">${post.date}</span>
+                </div>
+                <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight">${escapeHtml(post.title)}</h1>
+                <div class="flex items-center gap-3 mt-4">
+                    <div class="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-base">
+                        ${post.author.charAt(0)}
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-900 dark:text-white block text-sm">${escapeHtml(post.author)}</span>
+                        <span class="text-xs text-gray-400">Autore & Ricercatore</span>
+                    </div>
+                </div>
+            `;
+
+            // Process line breaks for readable HTML content
+            const formattedContent = post.content
+                .split('\n\n')
+                .map(para => `<p class="mb-4 leading-relaxed">${escapeHtml(para)}</p>`)
+                .join('');
+
+            document.getElementById('postBody').innerHTML = formattedContent;
+
+            // Render tags
+            const tagsList = document.getElementById('postTagsList');
+            tagsList.innerHTML = post.tags.map(t => `<span class="bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 text-xs px-3 py-1 rounded-full font-medium">#${escapeHtml(t)}</span>`).join('');
+
+            renderComments();
+            showSection('singlePostView');
+        }
+
+        // Render Comments in Single View
+        function renderComments() {
+            const post = posts.find(p => p.id === activePostId);
+            if (!post) return;
+
+            const comments = post.comments || [];
+            document.getElementById('commentCount').innerText = comments.length;
+
+            const listContainer = document.getElementById('commentsList');
+            if (comments.length === 0) {
+                listContainer.innerHTML = `<p class="text-sm text-gray-400 italic">Nessun commento presente. Sii il primo a commentare!</p>`;
+                return;
+            }
+
+            listContainer.innerHTML = comments.map(c => `
+                <div class="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-semibold text-sm text-gray-900 dark:text-white">${escapeHtml(c.author)}</span>
+                        <span class="text-xs text-gray-400">${c.date}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">${escapeHtml(c.text)}</p>
+                </div>
+            `).join('');
+        }
+
+        // Add Comment
+        function handleAddComment(event) {
+            event.preventDefault();
+            const author = document.getElementById('commentAuthor').value.trim();
+            const text = document.getElementById('commentText').value.trim();
+
+            if (!author || !text || !activePostId) return;
+
+            const post = posts.find(p => p.id === activePostId);
+            if (post) {
+                if (!post.comments) post.comments = [];
+                post.comments.push({
+                    author: author,
+                    text: text,
+                    date: new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })
+                });
+
+                savePostsToStorage();
+                renderComments();
+                document.getElementById('commentText').value = '';
+            }
+        }
+
+        // CMS: Save or Update Article
+        function handleSaveArticle(event) {
+            event.preventDefault();
+
+            const idInput = document.getElementById('postId').value;
+            const title = document.getElementById('postTitleInput').value.trim();
+            const author = document.getElementById('postAuthorInput').value.trim();
+            const tagsRaw = document.getElementById('postTagsInput').value.trim();
+            const excerpt = document.getElementById('postExcerptInput').value.trim();
+            const content = document.getElementById('postContentInput').value.trim();
+
+            const tagsArray = tagsRaw.split(',').map(t => t.trim()).filter(t => t.length > 0);
+
+            if (idInput) {
+                // Editing existing post
+                const post = posts.find(p => p.id === idInput);
+                if (post) {
+                    post.title = title;
+                    post.author = author;
+                    post.tags = tagsArray.length > 0 ? tagsArray : ["Generale"];
+                    post.excerpt = excerpt;
+                    post.content = content;
+                }
+            } else {
+                // Creating new post
+                const newPost = {
+                    id: Date.now().toString(),
+                    title: title,
+                    author: author,
+                    date: new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    tags: tagsArray.length > 0 ? tagsArray : ["Generale"],
+                    excerpt: excerpt,
+                    content: content,
+                    comments: []
+                };
+                posts.unshift(newPost);
+            }
+
+            savePostsToStorage();
+            renderTagBar();
+            renderBlogFeed();
+            renderCMSPostList();
+            resetEditorForm();
+
+            alert('Articolo salvato e pubblicato con successo nella Vista Pubblica!');
+        }
+
+        // CMS: Render post list in admin column
+        function renderCMSPostList() {
+            const container = document.getElementById('cmsPostList');
+            document.getElementById('postCountBadge').innerText = posts.length;
+
+            if (posts.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400">Nessun articolo presente.</p>`;
+                return;
+            }
+
+            container.innerHTML = posts.map(post => `
+                <div class="p-3 bg-gray-50 dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-800 flex justify-between items-center gap-3">
+                    <div class="overflow-hidden">
+                        <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 truncate">${escapeHtml(post.title)}</h4>
+                        <span class="text-xs text-gray-400">${post.date} • ${escapeHtml(post.author)}</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="editPost('${post.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg text-xs" title="Modifica">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deletePost('${post.id}')" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-slate-700 rounded-lg text-xs" title="Elimina">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Edit Post (Populate CMS Form)
+        function editPost(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+
+            document.getElementById('postId').value = post.id;
+            document.getElementById('postTitleInput').value = post.title;
+            document.getElementById('postAuthorInput').value = post.author;
+            document.getElementById('postTagsInput').value = post.tags.join(', ');
+            document.getElementById('postExcerptInput').value = post.excerpt;
+            document.getElementById('postContentInput').value = post.content;
+
+            document.getElementById('editorFormTitle').innerText = "Modifica Articolo";
+            document.getElementById('saveBtnText').innerText = "Aggiorna Articolo";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Delete Post
+        function deletePost(postId) {
+            if (confirm("Sei sicuro di voler eliminare questo articolo? L'azione è irreversibile.")) {
+                posts = posts.filter(p => p.id !== postId);
+                savePostsToStorage();
+                renderTagBar();
+                renderBlogFeed();
+                renderCMSPostList();
+            }
+        }
+
+        // Reset Editor Form
+        function resetEditorForm() {
+            document.getElementById('articleForm').reset();
+            document.getElementById('postId').value = '';
+            document.getElementById('editorFormTitle').innerText = "Scrivi Nuovo Articolo";
+            document.getElementById('saveBtnText').innerText = "Pubblica Ora";
+        }
+
+        // Helper Utilities
+        function handleSubscribe(e) {
+            e.preventDefault();
+            const email = document.getElementById('newsletterEmail').value;
+            alert(`Grazie per esserti iscritto con: ${email}`);
+            document.getElementById('newsletterEmail').value = '';
+        }
+
+        function scrollToNewsletter() {
+            showSection('publicView');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function copyCurrentLink() {
+            document.execCommand('copy');
+            alert('Link copiato negli appunti!');
+        }
+
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
