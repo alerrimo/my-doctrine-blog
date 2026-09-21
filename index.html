@@ -2,7 +2,9 @@
 <html lang="it" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="color-scheme" content="light dark">
     <title>Il Mio Blog Personale</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,6 +23,7 @@
                         brand: {
                             50: '#f0f7ff',
                             100: '#e0effe',
+                            400: '#60a5fa',
                             500: '#2563eb',
                             600: '#1d4ed8',
                             700: '#1e40af',
@@ -28,22 +31,83 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif']
+                        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif']
                     }
                 }
             }
-        }
+        };
+
+        // Applica il tema salvato (o quello del sistema) prima del rendering, per evitare il flash
+        (function () {
+            try {
+                var saved = localStorage.getItem('blog_theme');
+                var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (dark) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                }
+            } catch (e) {}
+        })();
     </script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            color-scheme: light;
         }
+        html.dark { color-scheme: dark; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-size: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            overflow-wrap: break-word;
+            transition: background-color 0.3s, color 0.3s;
+            /* Notch e barre di sistema (iPhone in orizzontale, Android con gesture) */
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        h1, h2, h3 { text-wrap: balance; }
+
+        /* Tocco: niente zoom col doppio tap, niente flash grigio */
+        a, button, [role="button"] {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        /* Tipografia di lettura */
         .prose p {
             margin-bottom: 1.25em;
-            line-height: 1.8;
-            font-size: 1.125rem;
+            line-height: 1.75;
+            font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);
+            white-space: pre-line;
+            hyphens: auto;
+            -webkit-hyphens: auto;
         }
+        .post-title {
+            font-size: clamp(1.75rem, 1.2rem + 2.4vw, 2.5rem);
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        /* iOS zooma sugli input con font < 16px: lo evitiamo sugli schermi piccoli */
+        @media (max-width: 767px) {
+            input, textarea, select { font-size: 16px !important; }
+        }
+
+        .modal-panel {
+            max-height: 90vh;
+            max-height: 90dvh;
+            overflow-y: auto;
+        }
+
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -55,133 +119,152 @@
             background: rgba(156, 163, 175, 0.5);
             border-radius: 9999px;
         }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .shake { animation: shake 0.25s ease-in-out 2; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-100 min-h-screen flex flex-col">
 
-    <div class="bg-slate-900 text-white text-xs sm:text-sm py-2.5 px-4 border-b border-slate-800 flex justify-between items-center sticky top-0 z-50 shadow-md">
+    <!-- Barra superiore pubblica: solo stato e tema (nessun accesso all'area riservata) -->
+    <div class="bg-slate-900 text-white text-xs sm:text-sm px-4 border-b border-slate-800 flex justify-between items-center sticky top-0 z-40 shadow-md" style="padding-top: calc(0.25rem + env(safe-area-inset-top, 0px)); padding-bottom: 0.25rem;">
         <div class="flex items-center gap-2">
             <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span class="font-medium text-slate-300 hidden sm:inline">Stato Blog: <strong class="text-white">Online</strong></span>
         </div>
-        <div class="flex items-center gap-4">
-            <button id="toggleAppModeBtn" onclick="toggleAppMode()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-3.5 py-1.5 rounded-lg text-xs transition flex items-center gap-2 shadow-sm">
-                <i class="fa-solid fa-pen-to-square"></i>
-                <span id="appModeLabel">Area Scrittore (CMS)</span>
-            </button>
-            <button onclick="toggleDarkMode()" class="text-slate-400 hover:text-white p-1 rounded transition" title="Cambia Tema">
-                <i id="themeIcon" class="fa-solid fa-moon text-base"></i>
-            </button>
-        </div>
+        <button onclick="toggleDarkMode()" class="text-slate-400 hover:text-white w-10 h-10 flex items-center justify-center rounded-full transition" title="Cambia tema" aria-label="Cambia tema">
+            <i id="themeIcon" class="fa-solid fa-moon text-base"></i>
+        </button>
     </div>
 
     <header class="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Text Personal Name Brand -->
-                <div class="flex items-center gap-8">
-                    <a href="#" onclick="showSection('publicView'); filterByTag('All');" class="flex items-center gap-2 group">
-                        <span id="blogNameDisplay" class="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
-                            Nome Cognome
+            <div class="flex flex-wrap md:flex-nowrap items-center justify-between gap-x-4 py-3 md:py-0 md:h-20">
+
+                <!-- Nome + navigazione desktop -->
+                <div class="flex items-center gap-8 min-w-0">
+                    <!-- 3 clic/tap ravvicinati sul nome aprono l'accesso riservato -->
+                    <a href="#" id="brandLink" onclick="handleBrandClick(event)" class="flex items-center gap-2 group min-w-0 select-none">
+                        <span id="blogNameDisplay" class="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors truncate">
+                            Alessio Roma
                         </span>
                     </a>
 
-                    <!-- Desktop Navigation Links -->
-                    <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-600 dark:text-gray-300">
-                        <a href="#" onclick="showSection('publicView'); filterByTag('All');" class="hover:text-brand-600 dark:hover:text-white transition">Home</a>
-                        <a href="#" onclick="showSection('publicView');" class="hover:text-brand-600 dark:hover:text-white transition">Articoli</a>
-                        <a href="#" onclick="openModal('contactModal')" class="hover:text-brand-600 dark:hover:text-white transition">Contatti</a>
+                    <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-600 dark:text-gray-300" aria-label="Navigazione principale">
+                        <a href="#" onclick="event.preventDefault(); goHome();" class="hover:text-brand-600 dark:hover:text-white transition">Home</a>
+                        <a href="#" onclick="event.preventDefault(); showSection('publicView');" class="hover:text-brand-600 dark:hover:text-white transition">Articoli</a>
+                        <a href="#" onclick="event.preventDefault(); openModal('contactModal');" class="hover:text-brand-600 dark:hover:text-white transition">Contatti</a>
                     </nav>
                 </div>
 
-                <!-- Right Header Controls: Search Only -->
-                <div class="flex items-center">
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Cerca nel blog..." class="pl-9 pr-4 py-1.5 text-sm bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 w-44 sm:w-64 transition-all">
-                    </div>
+                <!-- Pulsanti mobile/tablet: ricerca e menu -->
+                <div class="flex items-center gap-1 md:hidden">
+                    <button id="searchToggle" type="button" onclick="togglePanel('search')" aria-expanded="false" aria-controls="searchWrap" aria-label="Apri la ricerca" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                    </button>
+                    <button id="menuToggle" type="button" onclick="togglePanel('menu')" aria-expanded="false" aria-controls="mobileMenu" aria-label="Apri il menu" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+                        <i id="menuIcon" class="fa-solid fa-bars text-lg"></i>
+                    </button>
                 </div>
+
+                <!-- Ricerca: riga a tutta larghezza su mobile, campo inline su desktop -->
+                <form id="searchWrap" role="search" onsubmit="handleSearchSubmit(event)" class="hidden w-full order-last pt-3 md:pt-0 md:order-none md:block md:w-auto">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                        <input type="search" id="searchInput" oninput="handleSearch()" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Cerca nel blog" placeholder="Cerca nel blog..." class="w-full md:w-48 lg:w-64 pl-10 pr-4 py-3 md:py-1.5 text-base md:text-sm bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                    </div>
+                </form>
+
+                <!-- Menu mobile -->
+                <nav id="mobileMenu" class="hidden w-full order-last md:hidden mt-3 pt-2 border-t border-gray-200 dark:border-slate-800" aria-label="Menu mobile">
+                    <a href="#" onclick="event.preventDefault(); goHome();" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Home</a>
+                    <a href="#" onclick="event.preventDefault(); showSection('publicView');" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Articoli</a>
+                    <a href="#" onclick="event.preventDefault(); closeMobilePanels(); openModal('contactModal');" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Contatti</a>
+                </nav>
             </div>
         </div>
     </header>
 
-    <main id="publicView" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Tag Filter Navigation Bar -->
-        <div class="border-b border-gray-200 dark:border-slate-800 pb-3 mb-8 overflow-x-auto custom-scrollbar">
-            <div id="tagBar" class="flex space-x-6 text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                <!-- Dynamic tags injected via JS -->
+    <main id="publicView" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+            <!-- Colonna principale del blog -->
+            <div class="lg:col-span-8 space-y-6 min-w-0">
+                <div id="activeFilterBar" class="hidden flex flex-wrap items-center gap-2"></div>
+                <section class="space-y-6" id="blogFeedContainer">
+                    <!-- Blog cards injected via JS -->
+                </section>
             </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Blog Feed Main Column -->
-            <section class="lg:col-span-8 space-y-6" id="blogFeedContainer">
-                <!-- Blog cards injected via JS -->
-            </section>
-
-            <!-- Sidebar Column -->
-            <aside class="lg:col-span-4 space-y-6">
+            <!-- Sidebar: 2 colonne su tablet, 1 su desktop -->
+            <aside class="lg:col-span-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-1 content-start">
                 <!-- About Author Widget -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
                     <div class="w-16 h-16 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xl mb-4 shadow-md">
                         NC
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Benvenuti nel mio Blog</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
-                        Qui condivido le mie riflessioni, i miei saggi e scritti personali. Puoi leggere tutti i contenuti direttamente online.
+                        Ciao a tutti! 👋
+
+                    Non sono un teologo né un accademico: sono semplicemente un ragazzo di 21 anni che si è appassionato allo studio della fede e degli argomenti teologici.
+
+                    Ho creato questo sito web per condividere il mio percorso di crescita e apprendimento. Il mio obiettivo è imparare sul campo, mettendomi alla prova attraverso l'esegesi biblica e il confronto costruttivo con diverse dottrine e denominazioni.
+
+                    Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiaro, pulito e ordinato, permettendo a chiunque voglia approfondire o condividere questi contenuti di farlo con la comodità e la fruibilità di una pagina web dedicata.
                     </p>
-                    <button onclick="openModal('contactModal')" class="w-full bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 font-semibold py-2 rounded-xl text-xs transition">
+                    <button onclick="openModal('contactModal')" class="w-full min-h-[44px] bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 font-semibold py-2 rounded-xl text-sm transition">
                         Inviami un messaggio
                     </button>
                 </div>
 
-                <!-- Featured Categories Box -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
-                    <h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">
-                        Argomenti Principali
+                <!-- Argomenti (generati dai tag degli articoli) -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
+                    <h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
+                        Argomenti
                     </h4>
-                    <ul class="space-y-3 text-sm font-medium">
-                        <li>
-                            <a href="#" onclick="filterByTag('Saggi')" class="text-brand-600 dark:text-brand-400 hover:underline flex justify-between items-center">
-                                <span>Saggi e Riflessioni</span>
-                                <i class="fa-solid fa-arrow-right text-xs opacity-70"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" onclick="filterByTag('Note')" class="text-brand-600 dark:text-brand-400 hover:underline flex justify-between items-center">
-                                <span>Note Personali</span>
-                                <i class="fa-solid fa-arrow-right text-xs opacity-70"></i>
-                            </a>
-                        </li>
+                    <ul id="topicList" class="text-sm font-medium">
+                        <!-- Dynamic topics injected via JS -->
                     </ul>
                 </div>
 
                 <!-- Footer Copyright Box -->
-                <div class="p-4 text-xs text-gray-400 dark:text-gray-500 leading-relaxed">
+                <div class="p-4 text-xs text-gray-400 dark:text-gray-500 leading-relaxed sm:col-span-2 lg:col-span-1">
                     <p>&copy; 2026 Nome Cognome. Tutti i diritti riservati.</p>
                 </div>
             </aside>
         </div>
     </main>
 
-    <main id="singlePostView" class="hidden flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <button onclick="showSection('publicView')" class="mb-6 inline-flex items-center text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline gap-2">
+    <main id="singlePostView" class="hidden flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <button onclick="showSection('publicView')" class="mb-6 inline-flex items-center min-h-[44px] text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline gap-2">
             <i class="fa-solid fa-arrow-left"></i> Torna alla lista articoli
         </button>
 
-        <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6 sm:p-10 shadow-sm">
+        <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 sm:p-8 lg:p-10 shadow-sm">
             <div id="postHeader" class="border-b border-gray-200 dark:border-slate-800 pb-6 mb-8">
                 <!-- Injected Header Data -->
             </div>
 
-            <div id="postBody" class="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 leading-relaxed space-y-4">
+            <div id="postBody" class="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
                 <!-- Injected Article Body Content -->
             </div>
 
             <!-- Footer Share -->
             <div class="mt-12 pt-6 border-t border-gray-200 dark:border-slate-800 flex flex-wrap justify-between items-center gap-4">
                 <div id="postTagsList" class="flex flex-wrap gap-2"></div>
-                <button onclick="copyCurrentLink()" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <button onclick="copyCurrentLink()" class="min-h-[44px] px-4 py-2 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <i class="fa-regular fa-copy"></i> Copia Link Articolo
                 </button>
             </div>
@@ -189,13 +272,13 @@
             <!-- Comments Section -->
             <div class="mt-12 pt-8 border-t border-gray-200 dark:border-slate-800">
                 <h3 class="text-xl font-bold mb-6">Commenti (<span id="commentCount">0</span>)</h3>
-                
+
                 <form onsubmit="handleAddComment(event)" class="mb-8 space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input type="text" id="commentAuthor" required placeholder="Il tuo nome..." class="px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <input type="text" id="commentAuthor" required placeholder="Il tuo nome..." class="px-4 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
-                    <textarea id="commentText" required rows="3" placeholder="Scrivi un commento..." class="w-full px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
-                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg transition">Pubblica Commento</button>
+                    <textarea id="commentText" required rows="3" placeholder="Scrivi un commento..." class="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    <button type="submit" class="w-full sm:w-auto min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg transition">Pubblica Commento</button>
                 </form>
 
                 <div id="commentsList" class="space-y-4">
@@ -205,22 +288,28 @@
         </article>
     </main>
 
-    <main id="cmsView" class="hidden flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Dashboard riservata (accessibile solo dopo il passcode) -->
+    <main id="cmsView" class="hidden flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div class="mb-8 flex flex-wrap justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Pannello Scrittore CMS</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Crea e pubblica i tuoi articoli direttamente dal browser.</p>
             </div>
-            <button onclick="resetEditorForm()" class="bg-gray-200 dark:bg-slate-800 hover:bg-gray-300 text-sm font-medium px-4 py-2 rounded-lg transition">
-                <i class="fa-solid fa-plus mr-1"></i> Nuovo Articolo
-            </button>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button onclick="resetEditorForm()" class="flex-1 sm:flex-none min-h-[44px] bg-gray-200 dark:bg-slate-800 hover:bg-gray-300 text-sm font-medium px-4 py-2 rounded-lg transition">
+                    <i class="fa-solid fa-plus mr-1"></i> Nuovo Articolo
+                </button>
+                <button onclick="exitAdmin()" class="flex-1 sm:flex-none min-h-[44px] border border-gray-300 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800 text-sm font-medium px-4 py-2 rounded-lg transition">
+                    <i class="fa-solid fa-lock mr-1"></i> Esci
+                </button>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             <!-- Article Editor Form -->
-            <div class="lg:col-span-7 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+            <div class="lg:col-span-7 bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
                 <h2 id="editorFormTitle" class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800">Scrivi un Articolo</h2>
-                
+
                 <form id="articleForm" onsubmit="handleSaveArticle(event)" class="space-y-4">
                     <input type="hidden" id="postId" value="">
 
@@ -232,17 +321,17 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nome Autore</label>
-                            <input type="text" id="postAuthorInput" required placeholder="Il tuo nome" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <input type="text" id="postAuthorInput" required placeholder="Il tuo nome" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tag/Categoria (separati da virgola)</label>
-                            <input type="text" id="postTagsInput" required placeholder="Es. Saggi, Note" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <input type="text" id="postTagsInput" required placeholder="Es. Saggi, Note" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Estratto / Riassunto Breve</label>
-                        <textarea id="postExcerptInput" required rows="2" placeholder="Scrivi una breve introduzione..." class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                        <textarea id="postExcerptInput" required rows="2" placeholder="Scrivi una breve introduzione..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
                     </div>
 
                     <div>
@@ -250,9 +339,9 @@
                         <textarea id="postContentInput" required rows="10" placeholder="Scrivi il testo completo qui..." class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
                     </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-slate-800">
-                        <button type="button" onclick="resetEditorForm()" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 text-sm font-medium hover:bg-gray-100 dark:hover:bg-slate-800">Annulla</button>
-                        <button type="submit" class="px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow transition flex items-center gap-2">
+                    <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t border-gray-200 dark:border-slate-800">
+                        <button type="button" onclick="resetEditorForm()" class="w-full sm:w-auto min-h-[44px] px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 text-sm font-medium hover:bg-gray-100 dark:hover:bg-slate-800">Annulla</button>
+                        <button type="submit" class="w-full sm:w-auto min-h-[44px] justify-center px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow transition flex items-center gap-2">
                             <i class="fa-solid fa-paper-plane"></i>
                             <span id="saveBtnText">Pubblica Articolo</span>
                         </button>
@@ -260,36 +349,81 @@
                 </form>
             </div>
 
-            <!-- Articles Management Panel -->
-            <div class="lg:col-span-5 space-y-4">
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+            <!-- Colonna destra: articoli + impostazioni -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
                     <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
                         <span>I Tuoi Articoli</span>
                         <span id="postCountBadge" class="bg-brand-100 text-brand-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
                     </h2>
 
-                    <div id="cmsPostList" class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
+                    <div id="cmsPostList" class="space-y-3 max-h-[60vh] lg:max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
                         <!-- Dynamic list of post items -->
                     </div>
+                </div>
+
+                <!-- Impostazioni: passcode -->
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+                    <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800">Impostazioni di accesso</h2>
+
+                    <p id="defaultPassWarning" class="hidden mb-4 text-sm rounded-lg px-3 py-2 bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 border border-amber-200 dark:border-amber-800/60">
+                        Stai usando il passcode predefinito (1234). Scegline uno tuo.
+                    </p>
+
+                    <form id="settingsForm" onsubmit="handleChangePasscode(event)" class="space-y-3">
+                        <div>
+                            <label for="currentPassInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Passcode attuale</label>
+                            <input type="password" id="currentPassInput" name="current-passcode" required autocomplete="off" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label for="newPassInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Nuovo passcode (min. 4 caratteri)</label>
+                            <input type="password" id="newPassInput" name="new-passcode" required minlength="4" autocomplete="off" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label for="confirmPassInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Conferma nuovo passcode</label>
+                            <input type="password" id="confirmPassInput" name="confirm-passcode" required minlength="4" autocomplete="off" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <p id="settingsMsg" role="status" class="hidden text-sm"></p>
+                        <button type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm py-2 rounded-lg transition">Salva passcode</button>
+                    </form>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="contactModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xl relative">
-            <button onclick="closeModal('contactModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <h3 class="text-xl font-bold mb-4">Invia un messaggio</h3>
+    <!-- Modale contatti -->
+    <div id="contactModal" onclick="if (event.target === this) closeModal('contactModal')" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Invia un messaggio">
+        <div class="modal-panel bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xl relative">
+            <button onclick="closeModal('contactModal')" class="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600" aria-label="Chiudi"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold mb-4 pr-8">Invia un messaggio</h3>
             <form onsubmit="event.preventDefault(); alert('Messaggio inviato!'); closeModal('contactModal');" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Il tuo Nome</label>
-                    <input type="text" required placeholder="Nome e Cognome" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <input type="text" required placeholder="Nome e Cognome" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Messaggio</label>
-                    <textarea required rows="4" placeholder="Scrivi il tuo messaggio..." class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    <textarea required rows="4" placeholder="Scrivi il tuo messaggio..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow">Invia</button>
+                <button type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow">Invia</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modale passcode area riservata -->
+    <div id="adminModal" onclick="if (event.target === this) closeModal('adminModal')" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+        <div id="adminPanel" class="modal-panel bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xl relative">
+            <button onclick="closeModal('adminModal')" class="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600" aria-label="Chiudi"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="w-12 h-12 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center mb-4">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 id="adminModalTitle" class="text-xl font-bold mb-1">Area riservata</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Inserisci il passcode per aprire la dashboard.</p>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-3">
+                <label for="adminPassInput" class="sr-only">Passcode</label>
+                <input type="password" id="adminPassInput" name="admin-passcode" required autocomplete="off" autocapitalize="off" placeholder="Passcode" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <p id="adminError" role="alert" class="hidden text-sm text-red-600 dark:text-red-400"></p>
+                <button id="adminSubmitBtn" type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg text-sm shadow">Accedi</button>
             </form>
         </div>
     </div>
@@ -303,22 +437,37 @@
                 date: "21 Sep 2026",
                 tags: ["Saggi"],
                 excerpt: "Benvenuti nel mio nuovo blog personale. Questo è un esempio di articolo pubblicato che puoi leggere liberamente online...",
-                content: `Benvenuti nel mio nuovo blog personale.\n\nHo creato questo spazio per condividere scritti, saggi e note personali con i lettori in modo semplice e diretto, senza dover condividere file esterni o documenti pesanti.\n\nPuoi esplorare gli articoli per argomento usando i tag in alto oppure cercare un termine specifico nella barra di ricerca.`,
+                content: `Benvenuti nel mio nuovo blog personale.\n\nHo creato questo spazio per condividere scritti, saggi e note personali con i lettori in modo semplice e diretto, senza dover condividere file esterni o documenti pesanti.\n\nPuoi esplorare gli articoli per argomento usando la sezione Argomenti oppure cercare un termine specifico nella barra di ricerca.`,
                 comments: []
             }
         ];
+
+        // ---------- Accesso riservato ----------
+        const ADMIN_PASS_KEY = 'blog_admin_pass_v1';
+        const DEFAULT_PASSCODE = '1234';
+        const MAX_ATTEMPTS = 5;
+        const LOCK_MS = 30000;
+        const BRAND_CLICK_WINDOW_MS = 800;
 
         let posts = [];
         let activeTag = 'All';
         let activePostId = null;
         let currentMode = 'public';
+        let adminUnlocked = false;
+        let failedAttempts = 0;
+        let lockUntil = 0;
+        let lockTimer = null;
+        let brandClicks = 0;
+        let brandTimer = null;
 
+        // ---------- Storage ----------
         function initStore() {
-            const stored = localStorage.getItem('blog_posts_db');
+            let stored = null;
+            try { stored = localStorage.getItem('blog_posts_db'); } catch (e) {}
             if (stored) {
                 try {
                     posts = JSON.parse(stored);
-                } catch(e) {
+                } catch (e) {
                     posts = INITIAL_POSTS;
                 }
             } else {
@@ -328,74 +477,354 @@
         }
 
         function savePostsToStorage() {
-            localStorage.setItem('blog_posts_db', JSON.stringify(posts));
+            try {
+                localStorage.setItem('blog_posts_db', JSON.stringify(posts));
+            } catch (e) {
+                alert('Impossibile salvare: il browser sta bloccando la memoria locale (navigazione privata?).');
+            }
         }
 
-        window.onload = function() {
+        window.onload = function () {
             initStore();
-            renderTagBar();
+            applyTheme(document.documentElement.classList.contains('dark'));
+            renderTopics();
             renderBlogFeed();
             renderCMSPostList();
+            updateSettingsUI();
+        };
+
+        // ---------- Tema ----------
+        function applyTheme(dark) {
+            const html = document.documentElement;
+            html.classList.toggle('dark', dark);
+            html.classList.toggle('light', !dark);
+            const themeIcon = document.getElementById('themeIcon');
+            if (themeIcon) themeIcon.className = dark ? 'fa-solid fa-sun text-base' : 'fa-solid fa-moon text-base';
         }
 
         function toggleDarkMode() {
-            const html = document.documentElement;
-            const themeIcon = document.getElementById('themeIcon');
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                themeIcon.className = 'fa-solid fa-moon text-base';
-            } else {
-                html.classList.add('dark');
-                themeIcon.className = 'fa-solid fa-sun text-base';
-            }
+            const dark = !document.documentElement.classList.contains('dark');
+            applyTheme(dark);
+            try { localStorage.setItem('blog_theme', dark ? 'dark' : 'light'); } catch (e) {}
         }
 
-        function toggleAppMode() {
-            const btnLabel = document.getElementById('appModeLabel');
-            if (currentMode === 'public') {
-                currentMode = 'cms';
-                btnLabel.innerText = "Vista Pubblica Blog";
-                showSection('cmsView');
-            } else {
-                currentMode = 'public';
-                btnLabel.innerText = "Area Scrittore (CMS)";
-                showSection('publicView');
-            }
+        // ---------- Navigazione ----------
+        function scrollToTop() {
+            const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
         }
 
         function showSection(sectionId) {
+            // La dashboard non si apre mai senza passcode
+            if (sectionId === 'cmsView' && !adminUnlocked) {
+                openAdminAccess();
+                return;
+            }
+            // Uscire dalla dashboard la richiude
+            if (sectionId !== 'cmsView') adminUnlocked = false;
+            currentMode = sectionId === 'cmsView' ? 'cms' : 'public';
+
             document.getElementById('publicView').classList.add('hidden');
             document.getElementById('singlePostView').classList.add('hidden');
             document.getElementById('cmsView').classList.add('hidden');
-
             document.getElementById(sectionId).classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            closeMobilePanels();
+            scrollToTop();
         }
 
-        function renderTagBar() {
-            const tagBar = document.getElementById('tagBar');
-            const allTags = new Set(['All']);
-            posts.forEach(p => p.tags.forEach(t => allTags.add(t)));
-
-            tagBar.innerHTML = '';
-            Array.from(allTags).forEach(tag => {
-                const isActive = activeTag === tag;
-                const button = document.createElement('button');
-                button.className = `transition font-semibold hover:text-brand-600 dark:hover:text-white ${isActive ? 'text-brand-600 dark:text-white border-b-2 border-brand-600 pb-1' : ''}`;
-                button.innerText = tag;
-                button.onclick = () => filterByTag(tag);
-                tagBar.appendChild(button);
-            });
+        function goHome() {
+            activeTag = 'All';
+            document.getElementById('searchInput').value = '';
+            showSection('publicView');
+            renderTopics();
+            renderBlogFeed();
         }
+
+        // Pannelli mobile (ricerca / menu)
+        function closeMobilePanels() {
+            document.getElementById('searchWrap').classList.add('hidden');
+            document.getElementById('mobileMenu').classList.add('hidden');
+            document.getElementById('searchToggle').setAttribute('aria-expanded', 'false');
+            document.getElementById('menuToggle').setAttribute('aria-expanded', 'false');
+            document.getElementById('menuIcon').className = 'fa-solid fa-bars text-lg';
+        }
+
+        function togglePanel(which) {
+            const panel = document.getElementById(which === 'search' ? 'searchWrap' : 'mobileMenu');
+            const btn = document.getElementById(which === 'search' ? 'searchToggle' : 'menuToggle');
+            const willOpen = panel.classList.contains('hidden');
+
+            closeMobilePanels();
+            if (!willOpen) return;
+
+            panel.classList.remove('hidden');
+            btn.setAttribute('aria-expanded', 'true');
+            if (which === 'menu') {
+                document.getElementById('menuIcon').className = 'fa-solid fa-xmark text-lg';
+            } else {
+                // Focus immediato: su iOS la tastiera compare solo se il focus parte dal gesto dell'utente
+                document.getElementById('searchInput').focus();
+            }
+        }
+
+        // ---------- Area riservata: accesso ----------
+        function hashPass(str) {
+            // Hash leggero (cyrb53): evita di lasciare il passcode in chiaro nel localStorage
+            const s = 'blog::' + str;
+            let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+            for (let i = 0; i < s.length; i++) {
+                const ch = s.charCodeAt(i);
+                h1 = Math.imul(h1 ^ ch, 2654435761);
+                h2 = Math.imul(h2 ^ ch, 1597334677);
+            }
+            h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+            h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+            return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
+        }
+
+        function getStoredPassHash() {
+            try { return localStorage.getItem(ADMIN_PASS_KEY); } catch (e) { return null; }
+        }
+
+        function checkPasscode(input) {
+            const expected = getStoredPassHash() || hashPass(DEFAULT_PASSCODE);
+            return hashPass(input) === expected;
+        }
+
+        function handleBrandClick(event) {
+            event.preventDefault();
+            brandClicks++;
+            clearTimeout(brandTimer);
+
+            if (brandClicks >= 3) {
+                brandClicks = 0;
+                openAdminAccess();
+                return;
+            }
+
+            // Il singolo clic continua a portare alla Home
+            goHome();
+            brandTimer = setTimeout(() => { brandClicks = 0; }, BRAND_CLICK_WINDOW_MS);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const isA = (e.key && e.key.toLowerCase() === 'a') || e.code === 'KeyA';
+            if (e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey && isA) {
+                e.preventDefault();
+                if (adminUnlocked) exitAdmin();
+                else openAdminAccess();
+                return;
+            }
+            if (e.key === 'Escape') {
+                ['adminModal', 'contactModal'].forEach(id => {
+                    if (!document.getElementById(id).classList.contains('hidden')) closeModal(id);
+                });
+                closeMobilePanels();
+            }
+        });
+
+        function openAdminAccess() {
+            if (adminUnlocked) return;
+            const input = document.getElementById('adminPassInput');
+            input.value = '';
+            if (Date.now() >= lockUntil) hideAdminError();
+            else startLockCountdown();
+            openModal('adminModal');
+            input.focus();
+        }
+
+        function showAdminError(msg) {
+            const el = document.getElementById('adminError');
+            el.innerText = msg;
+            el.classList.remove('hidden');
+        }
+
+        function hideAdminError() {
+            document.getElementById('adminError').classList.add('hidden');
+            document.getElementById('adminSubmitBtn').disabled = false;
+        }
+
+        function startLockCountdown() {
+            const btn = document.getElementById('adminSubmitBtn');
+            clearInterval(lockTimer);
+            const tick = () => {
+                const left = Math.ceil((lockUntil - Date.now()) / 1000);
+                if (left <= 0) {
+                    clearInterval(lockTimer);
+                    hideAdminError();
+                    return;
+                }
+                btn.disabled = true;
+                showAdminError(`Troppi tentativi. Riprova tra ${left} secondi.`);
+            };
+            tick();
+            lockTimer = setInterval(tick, 500);
+        }
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            if (Date.now() < lockUntil) return;
+
+            const input = document.getElementById('adminPassInput');
+
+            if (checkPasscode(input.value)) {
+                failedAttempts = 0;
+                input.value = '';
+                hideAdminError();
+                adminUnlocked = true;
+                closeModal('adminModal');
+                renderCMSPostList();
+                updateSettingsUI();
+                showSection('cmsView');
+                return;
+            }
+
+            failedAttempts++;
+            input.value = '';
+            const panel = document.getElementById('adminPanel');
+            panel.classList.remove('shake');
+            void panel.offsetWidth; // riavvia l'animazione
+            panel.classList.add('shake');
+
+            if (failedAttempts >= MAX_ATTEMPTS) {
+                failedAttempts = 0;
+                lockUntil = Date.now() + LOCK_MS;
+                startLockCountdown();
+            } else {
+                showAdminError(`Passcode errato. Tentativi rimasti: ${MAX_ATTEMPTS - failedAttempts}.`);
+                input.focus();
+            }
+        }
+
+        function exitAdmin() {
+            document.getElementById('settingsForm').reset();
+            document.getElementById('settingsMsg').classList.add('hidden');
+            showSection('publicView');
+        }
+
+        // ---------- Dashboard: impostazioni passcode ----------
+        function updateSettingsUI() {
+            document.getElementById('defaultPassWarning').classList.toggle('hidden', !!getStoredPassHash());
+        }
+
+        function showSettingsMsg(msg, ok) {
+            const el = document.getElementById('settingsMsg');
+            el.innerText = msg;
+            el.className = 'text-sm ' + (ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400');
+        }
+
+        function handleChangePasscode(event) {
+            event.preventDefault();
+            const current = document.getElementById('currentPassInput').value;
+            const next = document.getElementById('newPassInput').value;
+            const confirmValue = document.getElementById('confirmPassInput').value;
+
+            if (!checkPasscode(current)) {
+                showSettingsMsg('Il passcode attuale non è corretto.', false);
+                return;
+            }
+            if (next.length < 4) {
+                showSettingsMsg('Il nuovo passcode deve avere almeno 4 caratteri.', false);
+                return;
+            }
+            if (next !== confirmValue) {
+                showSettingsMsg('Il nuovo passcode e la conferma non coincidono.', false);
+                return;
+            }
+
+            try {
+                localStorage.setItem(ADMIN_PASS_KEY, hashPass(next));
+            } catch (e) {
+                showSettingsMsg('Impossibile salvare il passcode: memoria locale bloccata dal browser.', false);
+                return;
+            }
+
+            document.getElementById('settingsForm').reset();
+            updateSettingsUI();
+            showSettingsMsg('Passcode aggiornato.', true);
+        }
+
+        // ---------- Argomenti, filtri e ricerca ----------
+        function renderTopics() {
+            const list = document.getElementById('topicList');
+            const map = {};
+            posts.forEach(p => p.tags.forEach(t => {
+                const key = t.toLowerCase();
+                if (!map[key]) map[key] = { label: t, count: 0 };
+                map[key].count++;
+            }));
+
+            const topics = Object.values(map).sort((a, b) => a.label.localeCompare(b.label, 'it'));
+            if (topics.length === 0) {
+                list.innerHTML = `<li class="text-xs text-gray-400 py-2">Nessun argomento ancora.</li>`;
+                return;
+            }
+
+            list.innerHTML = topics.map(t => {
+                const active = activeTag.toLowerCase() === t.label.toLowerCase();
+                return `
+                    <li>
+                        <a href="#" data-tag="${escapeHtml(t.label)}" class="flex justify-between items-center min-h-[44px] ${active ? 'text-brand-700 dark:text-white font-bold' : 'text-brand-600 dark:text-brand-400'} hover:underline">
+                            <span>${escapeHtml(t.label)}</span>
+                            <span class="text-xs text-gray-400 dark:text-gray-500 font-normal">${t.count}</span>
+                        </a>
+                    </li>`;
+            }).join('');
+        }
+
+        // Un solo listener per tutti i tag (sidebar e card): niente stringhe nei gestori inline
+        document.addEventListener('click', (e) => {
+            const el = e.target.closest('[data-tag]');
+            if (!el) return;
+            e.preventDefault();
+            filterByTag(el.getAttribute('data-tag'));
+        });
 
         function filterByTag(tag) {
             activeTag = tag;
-            renderTagBar();
+            if (document.getElementById('publicView').classList.contains('hidden')) {
+                showSection('publicView');
+            } else {
+                scrollToTop();
+            }
+            renderTopics();
             renderBlogFeed();
         }
 
         function handleSearch() {
+            if (document.getElementById('publicView').classList.contains('hidden')) {
+                showSection('publicView');
+            }
             renderBlogFeed();
+        }
+
+        function handleSearchSubmit(event) {
+            event.preventDefault();
+            document.getElementById('searchInput').blur(); // chiude la tastiera su mobile
+            renderBlogFeed();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            renderBlogFeed();
+        }
+
+        function renderActiveFilters() {
+            const bar = document.getElementById('activeFilterBar');
+            const q = document.getElementById('searchInput').value.trim();
+            const chipClass = 'inline-flex items-center gap-2 min-h-[36px] pl-3 pr-3 rounded-full bg-brand-50 dark:bg-slate-800 text-brand-700 dark:text-gray-200 text-sm font-medium border border-brand-100 dark:border-slate-700';
+            const chips = [];
+
+            if (activeTag !== 'All') {
+                chips.push(`<button type="button" onclick="filterByTag('All')" aria-label="Rimuovi il filtro argomento" class="${chipClass}">Argomento: ${escapeHtml(activeTag)} <i class="fa-solid fa-xmark text-xs"></i></button>`);
+            }
+            if (q) {
+                chips.push(`<button type="button" onclick="clearSearch()" aria-label="Cancella la ricerca" class="${chipClass}">Ricerca: ${escapeHtml(q)} <i class="fa-solid fa-xmark text-xs"></i></button>`);
+            }
+
+            bar.innerHTML = chips.join('');
+            bar.classList.toggle('hidden', chips.length === 0);
         }
 
         function renderBlogFeed() {
@@ -405,16 +834,18 @@
             let filtered = posts;
 
             if (activeTag !== 'All') {
-                filtered = filtered.filter(p => p.tags.map(t=>t.toLowerCase()).includes(activeTag.toLowerCase()));
+                filtered = filtered.filter(p => p.tags.map(t => t.toLowerCase()).includes(activeTag.toLowerCase()));
             }
 
             if (searchQuery) {
-                filtered = filtered.filter(p => 
-                    p.title.toLowerCase().includes(searchQuery) || 
+                filtered = filtered.filter(p =>
+                    p.title.toLowerCase().includes(searchQuery) ||
                     p.excerpt.toLowerCase().includes(searchQuery) ||
                     p.tags.some(t => t.toLowerCase().includes(searchQuery))
                 );
             }
+
+            renderActiveFilters();
 
             if (filtered.length === 0) {
                 container.innerHTML = `
@@ -427,34 +858,35 @@
             }
 
             container.innerHTML = filtered.map(post => `
-                <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm hover:shadow-md transition group">
-                    <h2 class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-3 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition cursor-pointer" onclick="openSinglePost('${post.id}')">
-                        ${escapeHtml(post.title)}
+                <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 sm:p-8 shadow-sm hover:shadow-md transition group">
+                    <h2 class="text-xl sm:text-2xl font-extrabold leading-snug text-gray-900 dark:text-white mb-3 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
+                        <a href="#" onclick="event.preventDefault(); openSinglePost('${post.id}')">${escapeHtml(post.title)}</a>
                     </h2>
 
-                    <p class="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed mb-6 line-clamp-3">
+                    <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed mb-6 line-clamp-3">
                         ${escapeHtml(post.excerpt)}
                     </p>
 
                     <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100 dark:border-slate-800/80 text-xs sm:text-sm text-gray-500">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-700 dark:text-slate-200">
-                                ${post.author.charAt(0)}
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-700 dark:text-slate-200">
+                                ${escapeHtml(post.author.charAt(0))}
                             </div>
-                            <div>
-                                <span class="font-medium text-gray-900 dark:text-gray-200 block leading-tight">${escapeHtml(post.author)}</span>
+                            <div class="min-w-0">
+                                <span class="font-medium text-gray-900 dark:text-gray-200 block leading-tight truncate">${escapeHtml(post.author)}</span>
                                 <span class="text-gray-400 text-xs">${post.date}</span>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            ${post.tags.map(t => `<span class="text-gray-500 dark:text-gray-400 font-medium hover:underline cursor-pointer" onclick="filterByTag('${t}')">${escapeHtml(t)}</span>`).join(' • ')}
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            ${post.tags.map(t => `<button type="button" data-tag="${escapeHtml(t)}" class="min-h-[32px] px-1 text-gray-500 dark:text-gray-400 font-medium hover:underline">${escapeHtml(t)}</button>`).join('<span aria-hidden="true">•</span>')}
                         </div>
                     </div>
                 </article>
             `).join('');
         }
 
+        // ---------- Singolo articolo e commenti ----------
         function openSinglePost(postId) {
             const post = posts.find(p => p.id === postId);
             if (!post) return;
@@ -464,10 +896,10 @@
             const headerContainer = document.getElementById('postHeader');
             headerContainer.innerHTML = `
                 <div class="text-xs text-gray-400 mb-2">${post.date}</div>
-                <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight">${escapeHtml(post.title)}</h1>
+                <h1 class="post-title font-extrabold text-gray-900 dark:text-white mb-4">${escapeHtml(post.title)}</h1>
                 <div class="flex items-center gap-3 mt-4">
                     <div class="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-base">
-                        ${post.author.charAt(0)}
+                        ${escapeHtml(post.author.charAt(0))}
                     </div>
                     <div>
                         <span class="font-semibold text-gray-900 dark:text-white block text-sm">${escapeHtml(post.author)}</span>
@@ -477,7 +909,7 @@
 
             const formattedContent = post.content
                 .split('\n\n')
-                .map(para => `<p class="mb-4 leading-relaxed">${escapeHtml(para)}</p>`)
+                .map(para => `<p>${escapeHtml(para)}</p>`)
                 .join('');
 
             document.getElementById('postBody').innerHTML = formattedContent;
@@ -504,11 +936,11 @@
 
             listContainer.innerHTML = comments.map(c => `
                 <div class="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
-                    <div class="flex justify-between items-center mb-1">
+                    <div class="flex justify-between items-center gap-3 mb-1">
                         <span class="font-semibold text-sm text-gray-900 dark:text-white">${escapeHtml(c.author)}</span>
-                        <span class="text-xs text-gray-400">${c.date}</span>
+                        <span class="text-xs text-gray-400 shrink-0">${c.date}</span>
                     </div>
-                    <p class="text-sm text-gray-700 dark:text-gray-300">${escapeHtml(c.text)}</p>
+                    <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">${escapeHtml(c.text)}</p>
                 </div>
             `).join('');
         }
@@ -535,8 +967,10 @@
             }
         }
 
+        // ---------- Dashboard: articoli ----------
         function handleSaveArticle(event) {
             event.preventDefault();
+            if (!adminUnlocked) { openAdminAccess(); return; }
 
             const idInput = document.getElementById('postId').value;
             const title = document.getElementById('postTitleInput').value.trim();
@@ -571,7 +1005,7 @@
             }
 
             savePostsToStorage();
-            renderTagBar();
+            renderTopics();
             renderBlogFeed();
             renderCMSPostList();
             resetEditorForm();
@@ -594,11 +1028,11 @@
                         <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 truncate">${escapeHtml(post.title)}</h4>
                         <span class="text-xs text-gray-400">${post.date}</span>
                     </div>
-                    <div class="flex items-center gap-1 shrink-0">
-                        <button onclick="editPost('${post.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg text-xs" title="Modifica">
+                    <div class="flex items-center shrink-0">
+                        <button onclick="editPost('${post.id}')" class="w-11 h-11 flex items-center justify-center text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Modifica" aria-label="Modifica articolo">
                             <i class="fa-solid fa-pen"></i>
                         </button>
-                        <button onclick="deletePost('${post.id}')" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-slate-700 rounded-lg text-xs" title="Elimina">
+                        <button onclick="deletePost('${post.id}')" class="w-11 h-11 flex items-center justify-center text-red-600 hover:bg-red-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Elimina" aria-label="Elimina articolo">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -607,6 +1041,7 @@
         }
 
         function editPost(postId) {
+            if (!adminUnlocked) return;
             const post = posts.find(p => p.id === postId);
             if (!post) return;
 
@@ -619,14 +1054,15 @@
 
             document.getElementById('editorFormTitle').innerText = "Modifica Articolo";
             document.getElementById('saveBtnText').innerText = "Aggiorna Articolo";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            scrollToTop();
         }
 
         function deletePost(postId) {
+            if (!adminUnlocked) return;
             if (confirm("Vuoi eliminare questo articolo?")) {
                 posts = posts.filter(p => p.id !== postId);
                 savePostsToStorage();
-                renderTagBar();
+                renderTopics();
                 renderBlogFeed();
                 renderCMSPostList();
             }
@@ -639,12 +1075,19 @@
             document.getElementById('saveBtnText').innerText = "Pubblica Articolo";
         }
 
+        // ---------- Modali ----------
         function openModal(id) {
             document.getElementById(id).classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
         }
 
         function closeModal(id) {
             document.getElementById(id).classList.add('hidden');
+            const anyOpen = ['adminModal', 'contactModal'].some(m => !document.getElementById(m).classList.contains('hidden'));
+            if (!anyOpen) document.body.classList.remove('overflow-hidden');
+            if (id === 'adminModal') {
+                document.getElementById('adminPassInput').value = '';
+            }
         }
 
         function copyCurrentLink() {
@@ -653,7 +1096,7 @@
         }
 
         function escapeHtml(str) {
-            return str
+            return String(str)
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
