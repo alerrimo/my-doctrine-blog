@@ -31,7 +31,7 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif']
+                        sans: ['EB Garamond', 'Georgia', 'Cambria', 'Times New Roman', 'serif']
                     }
                 }
             }
@@ -58,7 +58,7 @@
         html.dark { color-scheme: dark; }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'EB Garamond', Georgia, Cambria, 'Times New Roman', serif;
             font-size: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
@@ -218,13 +218,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Benvenuti nel mio Blog</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
-                        Ciao a tutti! 👋
-
-Non sono un teologo né un accademico: sono semplicemente un ragazzo di 21 anni che si è appassionato allo studio della fede e degli argomenti teologici.
-
-Ho creato questo sito web per condividere il mio percorso di crescita e apprendimento. Il mio obiettivo è imparare sul campo, mettendomi alla prova attraverso l'esegesi biblica e il confronto costruttivo con diverse dottrine e denominazioni.
-
-Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiaro, pulito e ordinato, permettendo a chiunque voglia approfondire o condividere questi contenuti di farlo con la comodità e la fruibilità di una pagina web dedicata.
+                        Qui condivido le mie riflessioni, i miei saggi e scritti personali. Puoi leggere tutti i contenuti direttamente online.
                     </p>
                     <button onclick="openModal('contactModal')" class="w-full min-h-[44px] bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 font-semibold py-2 rounded-xl text-sm transition">
                         Inviami un messaggio
@@ -249,7 +243,7 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
         </div>
     </main>
 
-    <main id="singlePostView" class="hidden flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <main id="singlePostView" class="hidden flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <button onclick="showSection('publicView')" class="mb-6 inline-flex items-center min-h-[44px] text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline gap-2">
             <i class="fa-solid fa-arrow-left"></i> Torna alla lista articoli
         </button>
@@ -375,6 +369,18 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
                     </div>
                 </div>
 
+                <!-- Pubblicazione -->
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+                    <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800">Pubblica sul sito</h2>
+                    <p id="publishStatus" role="status" class="mb-4 text-sm rounded-lg px-3 py-2 border"></p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+                        Articoli e libri restano nel browser in cui li scrivi. Per mostrarli anche sugli altri dispositivi, scarica il file e sostituisci quello con lo stesso nome, nella cartella del sito accanto a index.html.
+                    </p>
+                    <button type="button" onclick="downloadContentFile()" class="w-full min-h-[44px] bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-2 rounded-lg shadow transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-download"></i> Scarica contenuti.js
+                    </button>
+                </div>
+
                 <!-- Fonti: libri letti -->
                 <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
                     <h2 id="sourceFormTitle" class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
@@ -480,6 +486,8 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
         </div>
     </div>
 
+    <!-- Contenuti pubblicati: file generato dalla dashboard ("Scarica contenuti.js"). Se manca, il sito usa i contenuti di default qui sotto -->
+    <script src="contenuti.js"></script>
     <script>
         const INITIAL_POSTS = [
             {
@@ -525,27 +533,96 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
         let brandTimer = null;
 
         // ---------- Storage ----------
-        function initStore() {
-            let stored = null;
-            try { stored = localStorage.getItem('blog_posts_db'); } catch (e) {}
-            if (stored) {
-                try {
-                    posts = JSON.parse(stored);
-                } catch (e) {
-                    posts = INITIAL_POSTS;
-                }
-            } else {
-                posts = INITIAL_POSTS;
-                savePostsToStorage();
+        // I contenuti pubblicati arrivano da contenuti.js (se presente), altrimenti dai valori di default.
+        // Il browser dello scrittore tiene una copia di lavoro finché non la ripubblichi.
+        const WRITER_KEY = 'blog_writer_device';
+        const COMMENTS_KEY = 'blog_comments_db';
+        const DEFAULT_POST_ID = '1';
+        let commentsDb = {};
+
+        function seedPosts() {
+            return (window.BLOG_DATA && Array.isArray(window.BLOG_DATA.posts)) ? window.BLOG_DATA.posts : INITIAL_POSTS;
+        }
+
+        function seedSources() {
+            return (window.BLOG_DATA && Array.isArray(window.BLOG_DATA.sources)) ? window.BLOG_DATA.sources : INITIAL_SOURCES;
+        }
+
+        function readRaw(key) {
+            try { return localStorage.getItem(key); } catch (e) { return null; }
+        }
+
+        function readJsonObject(key) {
+            try {
+                const parsed = JSON.parse(readRaw(key) || '{}');
+                return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
+            } catch (e) {
+                return {};
             }
+        }
+
+        function isWriterDevice() { return readRaw(WRITER_KEY) === '1'; }
+        function markWriterDevice() { try { localStorage.setItem(WRITER_KEY, '1'); } catch (e) {} }
+
+        function attachComments() {
+            posts.forEach(p => { p.comments = commentsDb[p.id] || []; });
+        }
+
+        // Lettori: vedono sempre gli articoli pubblicati. Scrittore: vede la sua copia di lavoro.
+        function resolvePosts() {
+            const seeds = JSON.parse(JSON.stringify(seedPosts()));
+            let stored = null;
+            const raw = readRaw('blog_posts_db');
+            if (raw !== null) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) stored = parsed;
+                } catch (e) {}
+            }
+
+            if (stored) {
+                // Le versioni precedenti salvavano i commenti dentro l'articolo: li sposto a parte
+                let moved = false;
+                stored.forEach(p => {
+                    if (Array.isArray(p.comments) && p.comments.length && !commentsDb[p.id]) {
+                        commentsDb[p.id] = p.comments;
+                        moved = true;
+                    }
+                });
+                if (moved) saveComments();
+
+                // Articoli qui presenti ma non nel file pubblicato: questo è il dispositivo dello scrittore
+                // (l'articolo di esempio non conta: lo salvavano tutti i browser al primo accesso)
+                if (stored.some(p => p.id !== DEFAULT_POST_ID && !seeds.some(s => s.id === p.id))) markWriterDevice();
+            }
+
+            posts = (isWriterDevice() && stored) ? stored : seeds;
+            attachComments();
+        }
+
+        function initStore() {
+            commentsDb = readJsonObject(COMMENTS_KEY);
+            resolvePosts();
+        }
+
+        // Al primo sblocco della dashboard questo browser diventa il dispositivo di lavoro
+        function becomeWriterDevice() {
+            if (isWriterDevice()) return;
+            markWriterDevice();
+            if (readRaw('blog_posts_db') !== null) resolvePosts();
+            else savePostsToStorage();
         }
 
         function savePostsToStorage() {
             try {
-                localStorage.setItem('blog_posts_db', JSON.stringify(posts));
+                localStorage.setItem('blog_posts_db', JSON.stringify(posts.map(({ comments, ...rest }) => rest)));
             } catch (e) {
                 alert('Impossibile salvare: il browser sta bloccando la memoria locale (navigazione privata?).');
             }
+        }
+
+        function saveComments() {
+            try { localStorage.setItem(COMMENTS_KEY, JSON.stringify(commentsDb)); } catch (e) {}
         }
 
         function readJsonArray(key) {
@@ -564,7 +641,7 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
             const stored = readJsonArray(SOURCES_KEY);
             const removed = readJsonArray(SOURCES_REMOVED_KEY);
             const known = new Set(stored.map(s => s.id));
-            const missing = INITIAL_SOURCES
+            const missing = seedSources()
                 .filter(s => !known.has(s.id) && !removed.includes(s.id))
                 .map(s => ({ ...s }));
             sources = stored.concat(missing);
@@ -772,8 +849,12 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
                 input.value = '';
                 hideAdminError();
                 adminUnlocked = true;
+                becomeWriterDevice();
                 closeModal('adminModal');
+                renderTopics();
+                renderBlogFeed();
                 renderCMSPostList();
+                renderCMSSourceList();
                 updateSettingsUI();
                 showSection('cmsView');
                 return;
@@ -1053,14 +1134,15 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
 
             const post = posts.find(p => p.id === activePostId);
             if (post) {
-                if (!post.comments) post.comments = [];
-                post.comments.push({
+                if (!commentsDb[post.id]) commentsDb[post.id] = [];
+                commentsDb[post.id].push({
                     author: author,
                     text: text,
                     date: new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })
                 });
+                post.comments = commentsDb[post.id];
 
-                savePostsToStorage();
+                saveComments();
                 renderComments();
                 document.getElementById('commentText').value = '';
             }
@@ -1115,6 +1197,7 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
         function renderCMSPostList() {
             const container = document.getElementById('cmsPostList');
             document.getElementById('postCountBadge').innerText = posts.length;
+            updatePublishUI();
 
             if (posts.length === 0) {
                 container.innerHTML = `<p class="text-xs text-gray-400">Nessun articolo presente.</p>`;
@@ -1160,6 +1243,8 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
             if (!adminUnlocked) return;
             if (confirm("Vuoi eliminare questo articolo?")) {
                 posts = posts.filter(p => p.id !== postId);
+                delete commentsDb[postId];
+                saveComments();
                 savePostsToStorage();
                 renderTopics();
                 renderBlogFeed();
@@ -1216,6 +1301,7 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
         function renderCMSSourceList() {
             const container = document.getElementById('cmsSourceList');
             document.getElementById('sourceCountBadge').innerText = sources.length;
+            updatePublishUI();
 
             if (sources.length === 0) {
                 container.innerHTML = `<p class="text-xs text-gray-400">Nessun libro presente.</p>`;
@@ -1287,7 +1373,7 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
         function deleteSource(sourceId) {
             if (!adminUnlocked) return;
             if (confirm('Vuoi eliminare questo libro dall\'elenco?')) {
-                if (INITIAL_SOURCES.some(s => s.id === sourceId)) {
+                if (seedSources().some(s => s.id === sourceId)) {
                     const removed = readJsonArray(SOURCES_REMOVED_KEY);
                     if (!removed.includes(sourceId)) removed.push(sourceId);
                     try { localStorage.setItem(SOURCES_REMOVED_KEY, JSON.stringify(removed)); } catch (e) {}
@@ -1303,6 +1389,55 @@ Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiar
             document.getElementById('sourceForm').reset();
             document.getElementById('sourceId').value = '';
             document.getElementById('sourceSaveText').innerText = 'Aggiungi libro';
+        }
+
+        // ---------- Pubblicazione: contenuti.js ----------
+        function canonicalContent(postList, sourceList) {
+            return JSON.stringify({
+                posts: postList.map(p => ({ id: p.id, title: p.title, author: p.author, date: p.date, tags: p.tags, excerpt: p.excerpt, content: p.content })),
+                sources: sourceList.map(s => ({ id: s.id, title: s.title, author: s.author, note: s.note || '', url: s.url || '', urlLabel: s.urlLabel || '' }))
+            });
+        }
+
+        function hasUnpublishedChanges() {
+            return canonicalContent(posts, sources) !== canonicalContent(seedPosts(), seedSources());
+        }
+
+        function updatePublishUI() {
+            const el = document.getElementById('publishStatus');
+            if (!el) return;
+            const pending = hasUnpublishedChanges();
+            el.className = 'mb-4 text-sm rounded-lg px-3 py-2 border ' + (pending
+                ? 'bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 border-amber-200 dark:border-amber-800/60'
+                : 'bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800/60');
+            el.innerText = pending
+                ? 'Ci sono modifiche non ancora pubblicate: gli altri dispositivi non le vedono.'
+                : 'Tutto pubblicato: gli altri dispositivi vedono gli stessi contenuti.';
+        }
+
+        function buildContentFile() {
+            const data = {
+                posts: posts.map(({ comments, ...rest }) => rest),
+                sources: sources.map(s => ({ ...s }))
+            };
+            const json = JSON.stringify(data, null, 2)
+                .replace(/\u2028/g, '\\u2028')
+                .replace(/\u2029/g, '\\u2029');
+            return '// Generato dalla dashboard del blog. Sostituisci il file con questo nome accanto a index.html.\n' +
+                   'window.BLOG_DATA = ' + json + ';\n';
+        }
+
+        function downloadContentFile() {
+            if (!adminUnlocked) { openAdminAccess(); return; }
+            const blob = new Blob([buildContentFile()], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'contenuti.js';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
 
         // ---------- Modali ----------
