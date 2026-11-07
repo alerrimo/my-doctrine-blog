@@ -12,9 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">    
-
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -32,13 +31,12 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['EB Garamond', 'Georgia', 'Cambria', 'Times New Roman', 'serif']
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
                     }
                 }
             }
         };
 
-        // Applica il tema salvato (o quello del sistema) prima del rendering, per evitare il flash
         (function () {
             try {
                 var saved = localStorage.getItem('blog_theme');
@@ -51,11 +49,6 @@
         })();
     </script>
     <style>
-
-        body {
-    font-family: 'JosefinSans', sans-serif;
-  }
-
         html {
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
@@ -64,21 +57,13 @@
         html.dark { color-scheme: dark; }
 
         body {
-            font-family: 'EB Garamond', Georgia, Cambria, 'Times New Roman', serif;
-            font-size: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
-            overflow-wrap: break-word;
-            transition: background-color 0.3s, color 0.3s;
-            /* Notch e barre di sistema (iPhone in orizzontale, Android con gesture) */
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-            padding-bottom: env(safe-area-inset-bottom);
+            -moz-osx-font-smoothing: grayscale;
         }
 
         h1, h2, h3 { text-wrap: balance; }
 
-        /* Tocco: niente zoom col doppio tap, niente flash grigio */
         a, button, [role="button"] {
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
@@ -88,7 +73,6 @@
             outline-offset: 2px;
         }
 
-        /* Tipografia di lettura */
         .prose p {
             margin-bottom: 1.25em;
             line-height: 1.75;
@@ -103,7 +87,6 @@
             letter-spacing: -0.02em;
         }
 
-        /* iOS zooma sugli input con font < 16px: lo evitiamo sugli schermi piccoli */
         @media (max-width: 767px) {
             input, textarea, select { font-size: 16px !important; }
         }
@@ -144,20 +127,25 @@
 </head>
 <body class="bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-100 min-h-screen flex flex-col">
 
-    <!-- Barra superiore pubblica: solo stato e tema (nessun accesso all'area riservata) -->
-
+    <!-- Header pulito con logo personalizzato -->
     <header class="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap md:flex-nowrap items-center justify-between gap-x-4 py-3 md:py-0 md:h-20">
+            <div class="flex items-center justify-between h-20">
 
-                <!-- Nome + navigazione desktop -->
-                <div class="flex items-center gap-8 min-w-0">
-                    <!-- 3 clic/tap ravvicinati sul nome aprono l'accesso riservato -->
-                    <a href="#" id="brandLink" onclick="handleBrandClick(event)" class="flex items-center gap-2 group min-w-0 select-none">
-                        <span id="blogNameDisplay" class="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors truncate">
+                <div class="flex items-center gap-6 min-w-0">
+                    <a href="#" id="brandLink" onclick="handleBrandClick(event)" class="flex items-center gap-3.5 group shrink-0 select-none">
+                        <img src="https://dlgpvykubqwkryaltwpm.supabase.co/storage/v1/object/public/avatars/20260910_141440%20(1).png" 
+                         alt="Alessio" 
+                        class="w-12 h-12 rounded-full object-cover border-2 border-brand-500/30 group-hover:border-brand-500 transition-all shadow-sm shrink-0">
+                        <span id="blogNameDisplay" class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors hidden sm:inline">
                             Ricercadellaverità-pursuitoftruth
                         </span>
                     </a>
+                    
+                    <!-- Pulsante Toggle Tema con Icone Visibili -->
+                    <button id="theme-toggle" onclick="toggleDarkMode()" class="p-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-sm focus:outline-none transition-colors duration-200 shrink-0" aria-label="Cambia tema">
+                        <i id="themeIcon" class="fa-solid fa-moon text-lg"></i>
+                    </button>
 
                     <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-600 dark:text-gray-300" aria-label="Navigazione principale">
                         <a href="#" onclick="event.preventDefault(); goHome();" class="hover:text-brand-600 dark:hover:text-white transition">Home</a>
@@ -167,90 +155,43 @@
                     </nav>
                 </div>
 
-                <!-- Pulsanti mobile/tablet: ricerca e menu -->
-                <div class="flex items-center gap-1 md:hidden">
-                    <button id="searchToggle" type="button" onclick="togglePanel('search')" aria-expanded="false" aria-controls="searchWrap" aria-label="Apri la ricerca" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
-                        <i class="fa-solid fa-magnifying-glass text-lg"></i>
-                    </button>
-                    <button id="menuToggle" type="button" onclick="togglePanel('menu')" aria-expanded="false" aria-controls="mobileMenu" aria-label="Apri il menu" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
-                        <i id="menuIcon" class="fa-solid fa-bars text-lg"></i>
-                    </button>
-                </div>
-
-                <!-- Ricerca: riga a tutta larghezza su mobile, campo inline su desktop -->
-                <form id="searchWrap" role="search" onsubmit="handleSearchSubmit(event)" class="hidden w-full order-last pt-3 md:pt-0 md:order-none md:block md:w-auto">
+                <form id="searchFormDesktop" role="search" onsubmit="handleSearchSubmit(event)" class="hidden md:block w-48 lg:w-64">
                     <div class="relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
-                        <input type="search" id="searchInput" oninput="handleSearch()" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Cerca nel blog" placeholder="Cerca nel blog..." class="w-full md:w-48 lg:w-64 pl-10 pr-4 py-3 md:py-1.5 text-base md:text-sm bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                        <input type="search" id="searchInput" oninput="handleSearch()" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Cerca nel blog" placeholder="Cerca nel blog..." class="w-full pl-10 pr-4 py-1.5 text-sm bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
                     </div>
                 </form>
 
-                <!-- Menu mobile -->
-                <nav id="mobileMenu" class="hidden w-full order-last md:hidden mt-3 pt-2 border-t border-gray-200 dark:border-slate-800" aria-label="Menu mobile">
-                    <a href="#" onclick="event.preventDefault(); goHome();" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Home</a>
-                    <a href="#" onclick="event.preventDefault(); showSection('publicView');" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Articoli</a>
-                    <a href="#" onclick="event.preventDefault(); showSection('sourcesView');" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Fonti</a>
-                    <a href="#" onclick="event.preventDefault(); closeMobilePanels(); openModal('contactModal');" class="flex items-center min-h-[48px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Contatti</a>
-                </nav>
-            </div>
-        </div>
-    </header>
-
-    <main id="publicView" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            <!-- Colonna principale del blog -->
-            <div class="lg:col-span-8 space-y-6 min-w-0">
-                <p id="publicSyncError" class="hidden text-sm rounded-lg px-4 py-3 bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-200 border border-red-200 dark:border-red-800/60">
-                    Non riesco a contattare il database del blog in questo momento. Controlla la connessione e ricarica la pagina.
-                </p>
-                <div id="activeFilterBar" class="hidden flex flex-wrap items-center gap-2"></div>
-                <section class="space-y-6" id="blogFeedContainer">
-                    <!-- Blog cards injected via JS -->
-                </section>
-            </div>
-
-            <!-- Sidebar: 2 colonne su tablet, 1 su desktop -->
-            <aside class="lg:col-span-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-1 content-start">
-                <!-- About Author Widget -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
-                    <div class="w-16 h-16 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xl mb-4 shadow-md">
-                        AR
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Chi sono - About me</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
-                        Mi chiamo Alessio, sono un ragazzo di 21 anni, senza formazione teologica o accademica, che si è appassionato allo studio della fede. Questo sito nasce dal desiderio di condividere con i miei amici le mie riflessioni, ma recentemente ho deciso di renderlo pubblico. Qui imparo mettendomi alla prova e condivido il mio percorso, mentre costruisco la mia prospettiva sulla teologia e sulla fede.
-
-                        Scrivo analisi ed esegesi bibliche, letture e riflessioni, cercando di creare confronti costruttivi con diverse dottrine e denominazioni. Cerco di presentare i contenuti in modo chiaro, pulito e ordinato, così che siano accessibili a chiunque voglia approfondire.
-
-                        Esplora pure gli articoli e, se hai una domanda, un suggerimento o un’opinione da condividere, sei il benvenuto: il confronto rispettoso è ben accetto.
-
-                        <br>About me <br>
-                        My name is Alessio; I’m a 21-year-old man with no theological or academic training who has developed a passion for studying the faith. This site grew out of a desire to share my reflections with my friends, but I recently decided to make it public. Some of these friends are not from Italy and therefore I will be posting every article also in english language. Here, I learn by challenging myself and share my journey as I develop my own perspective on theology and faith.
-
-                        I write biblical analyses and exegeses, as well as readings and reflections, seeking to foster constructive dialogue with various doctrines and denominations. I strive to present the content in a clear, concise, and organized manner so that it is accessible to anyone who wishes to delve deeper.
-
-                        Feel free to explore the articles, and if you have a question, a suggestion, or an opinion to share, you’re welcome to do so: respectful dialogue is always welcome.
-                    </p>
-                    <button onclick="openModal('contactModal')" class="w-full min-h-[44px] bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 font-semibold py-2 rounded-xl text-sm transition">
-                        Comment
+                <div class="flex items-center gap-1 md:hidden">
+                    <button id="searchToggle" type="button" onclick="togglePanel('search')" aria-expanded="false" aria-label="Apri la ricerca" class="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-magnifying-glass text-base"></i>
+                    </button>
+                    <button id="menuToggle" type="button" onclick="togglePanel('menu')" aria-expanded="false" aria-label="Apri il menu" class="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+                        <i id="menuIcon" class="fa-solid fa-bars text-base"></i>
                     </button>
                 </div>
+            </div>
 
-                <!-- Argomenti (generati dai tag degli articoli) -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
-                    <h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
-                        Argomenti - Topics
-                    </h4>
-                    <ul id="topicList" class="text-sm font-medium">
-                        <!-- Dynamic topics injected via JS -->
-                    </ul>
-                </div>
+            <div id="searchMobilePanel" class="hidden pb-3 md:hidden">
+                <form role="search" onsubmit="handleSearchSubmit(event)" class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                    <input type="search" id="searchInputMobile" oninput="document.getElementById('searchInput').value = this.value; handleSearch();" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Cerca nel blog" placeholder="Cerca nel blog..." class="w-full pl-10 pr-4 py-2.5 text-base bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </form>
+            </div>
 
-                <!-- Footer Copyright Box -->
-                <div class="p-4 text-xs text-gray-400 dark:text-gray-500 leading-relaxed sm:col-span-2 lg:col-span-1">
-                    <p>&copy; Il timore del Signore è il principio della scienza; gli stolti disprezzano la saggezza e l’istruzione. Proverbi 1:7. 2026 Alessio Roma. Tutti i diritti riservati. All rights reserved.</p>
-                </div>
-            </aside>
+            <nav id="mobileMenu" class="hidden md:hidden pb-3 pt-2 border-t border-gray-200 dark:border-slate-800" aria-label="Menu mobile">
+                <a href="#" onclick="event.preventDefault(); goHome();" class="flex items-center min-h-[44px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Home</a>
+                <a href="#" onclick="event.preventDefault(); showSection('publicView');" class="flex items-center min-h-[44px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Articoli</a>
+                <a href="#" onclick="event.preventDefault(); showSection('sourcesView');" class="flex items-center min-h-[44px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Fonti</a>
+                <a href="#" onclick="event.preventDefault(); closeMobilePanels(); openModal('contactModal');" class="flex items-center min-h-[44px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Contatti</a>
+            </nav>
+        </div>
+    </header>
+    <!-- Contenitore principale articoli -->
+    <main id="publicView" class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="activeFilterBar" class="hidden flex flex-wrap gap-2 mb-6"></div>
+        <div id="blogFeedContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Griglia articoli dinamica -->
         </div>
     </main>
 
@@ -261,14 +202,13 @@
 
         <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 sm:p-8 lg:p-10 shadow-sm">
             <div id="postHeader" class="border-b border-gray-200 dark:border-slate-800 pb-6 mb-8">
-                <!-- Injected Header Data -->
+                <!-- Header con immagine in evidenza -->
             </div>
 
             <div id="postBody" class="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
-                <!-- Injected Article Body Content -->
+                <!-- Contenuto articolo -->
             </div>
 
-            <!-- Footer Share -->
             <div class="mt-12 pt-6 border-t border-gray-200 dark:border-slate-800 flex flex-wrap justify-between items-center gap-4">
                 <div id="postTagsList" class="flex flex-wrap gap-2"></div>
                 <button onclick="copyCurrentLink()" class="min-h-[44px] px-4 py-2 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
@@ -276,7 +216,6 @@
                 </button>
             </div>
 
-            <!-- Comments Section -->
             <div class="mt-12 pt-8 border-t border-gray-200 dark:border-slate-800">
                 <h3 class="text-xl font-bold mb-6">Commenti - Comments (<span id="commentCount">0</span>)</h3>
 
@@ -288,25 +227,20 @@
                     <button type="submit" class="w-full sm:w-auto min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg transition">Pubblica Commento</button>
                 </form>
 
-                <div id="commentsList" class="space-y-4">
-                    <!-- Injected Comments -->
-                </div>
+                <div id="commentsList" class="space-y-4"></div>
             </div>
         </article>
     </main>
 
-    <!-- Pagina pubblica Fonti: libri letti -->
     <main id="sourcesView" class="hidden flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div class="mb-8">
             <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Fonti - Sources</h1>
             <p class="text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">I libri che ho letto, raccolti qui per chi volesse approfondire. - The books I've read and take inspiration from.</p>
         </div>
-        <ul id="sourcesList" class="space-y-4">
-            <!-- Books injected via JS -->
-        </ul>
+        <ul id="sourcesList" class="space-y-4"></ul>
     </main>
 
-    <!-- Dashboard riservata (accessibile solo dopo l'accesso con email+password) -->
+    <!-- CMS Dashboard -->
     <main id="cmsView" class="hidden flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div class="mb-8 flex flex-wrap justify-between items-center gap-4">
             <div>
@@ -326,7 +260,6 @@
         <p id="syncError" class="hidden mb-6 text-sm rounded-lg px-4 py-3 bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-200 border border-red-200 dark:border-red-800/60"></p>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            <!-- Article Editor Form -->
             <div class="lg:col-span-7 bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
                 <h2 id="editorFormTitle" class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800">Scrivi un Articolo</h2>
 
@@ -350,6 +283,11 @@
                     </div>
 
                     <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">URL Immagine in Evidenza (Supabase o HTTPS)</label>
+                        <input type="url" id="postImageInput" placeholder="https://..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+
+                    <div>
                         <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Estratto / Riassunto Breve</label>
                         <textarea id="postExcerptInput" required rows="2" placeholder="Scrivi una breve introduzione..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
                     </div>
@@ -369,43 +307,37 @@
                 </form>
             </div>
 
-            <!-- Colonna destra: articoli + impostazioni -->
             <div class="lg:col-span-5 space-y-6">
                 <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
                     <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
                         <span>I Tuoi Articoli</span>
                         <span id="postCountBadge" class="bg-brand-100 text-brand-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
                     </h2>
-
-                    <div id="cmsPostList" class="space-y-3 max-h-[60vh] lg:max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
-                        <!-- Dynamic list of post items -->
-                    </div>
+                    <div id="cmsPostList" class="space-y-3 max-h-[60vh] lg:max-h-[600px] overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
 
-                <!-- Fonti: libri letti -->
                 <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
-                    <h2 id="sourceFormTitle" class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
+                    <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
                         <span>Fonti: libri letti</span>
                         <span id="sourceCountBadge" class="bg-brand-100 text-brand-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
                     </h2>
-
                     <form id="sourceForm" onsubmit="handleSaveSource(event)" class="space-y-3 mb-5">
                         <input type="hidden" id="sourceId" value="">
                         <div>
-                            <label for="sourceTitleInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Titolo del libro</label>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Titolo del libro</label>
                             <input type="text" id="sourceTitleInput" required autocomplete="off" placeholder="Es. Il nome della rosa" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
                         <div>
-                            <label for="sourceAuthorInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Autore</label>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Autore</label>
                             <input type="text" id="sourceAuthorInput" required autocomplete="off" placeholder="Es. Umberto Eco" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
                         <div>
-                            <label for="sourceNoteInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Nota (facoltativa)</label>
-                            <textarea id="sourceNoteInput" rows="2" placeholder="Due righe su cosa ne pensi o perché lo consigli..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nota (facoltativa)</label>
+                            <textarea id="sourceNoteInput" rows="2" placeholder="Due righe..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
                         </div>
                         <div>
-                            <label for="sourceUrlInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Link (facoltativo)</label>
-                            <input type="url" id="sourceUrlInput" autocomplete="off" inputmode="url" placeholder="https://..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Link (facoltativo)</label>
+                            <input type="url" id="sourceUrlInput" autocomplete="off" placeholder="https://..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
                         <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
                             <button type="button" onclick="resetSourceForm()" class="w-full sm:w-auto min-h-[44px] px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 text-sm font-medium hover:bg-gray-100 dark:hover:bg-slate-800">Annulla</button>
@@ -415,38 +347,33 @@
                             </button>
                         </div>
                     </form>
-
-                    <div id="cmsSourceList" class="space-y-3 max-h-[50vh] lg:max-h-[400px] overflow-y-auto custom-scrollbar pr-1">
-                        <!-- Dynamic list of books -->
-                    </div>
+                    <div id="cmsSourceList" class="space-y-3 max-h-[50vh] lg:max-h-[400px] overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
 
-                <!-- Impostazioni: password -->
                 <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
                     <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800">Impostazioni di accesso</h2>
-
                     <form id="settingsForm" onsubmit="handleChangePassword(event)" class="space-y-3">
                         <div>
-                            <label for="newPassInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Nuova password (min. 6 caratteri)</label>
-                            <input type="password" id="newPassInput" name="new-password" required minlength="6" autocomplete="new-password" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nuova password (min. 6 caratteri)</label>
+                            <input type="password" id="newPassInput" required minlength="6" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
                         <div>
-                            <label for="confirmPassInput" class="block text-xs font-bold uppercase text-gray-500 mb-1">Conferma nuova password</label>
-                            <input type="password" id="confirmPassInput" name="confirm-password" required minlength="6" autocomplete="new-password" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Conferma nuova password</label>
+                            <input type="password" id="confirmPassInput" required minlength="6" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
-                        <p id="settingsMsg" role="status" class="hidden text-sm"></p>
+                        <p id="settingsMsg" class="hidden text-sm"></p>
                         <button type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm py-2 rounded-lg transition">Salva password</button>
                     </form>
-                    <button type="button" onclick="handleSignOut()" class="mt-3 w-full min-h-[44px] border border-gray-300 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800 text-sm font-medium px-4 py-2 rounded-lg transition">Disconnetti account da questo dispositivo</button>
+                    <button type="button" onclick="handleSignOut()" class="mt-3 w-full min-h-[44px] border border-gray-300 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800 text-sm font-medium px-4 py-2 rounded-lg transition">Disconnetti account</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Modale contatti -->
-    <div id="contactModal" onclick="if (event.target === this) closeModal('contactModal')" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Invia un messaggio">
+    <!-- Modali -->
+    <div id="contactModal" onclick="if (event.target === this) closeModal('contactModal')" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="modal-panel bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xl relative">
-            <button onclick="closeModal('contactModal')" class="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600" aria-label="Chiudi"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <button onclick="closeModal('contactModal')" class="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h3 class="text-xl font-bold mb-4 pr-8">Invia un messaggio</h3>
             <form onsubmit="event.preventDefault(); alert('Messaggio inviato!'); closeModal('contactModal');" class="space-y-4">
                 <div>
@@ -455,77 +382,59 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Messaggio</label>
-                    <textarea required rows="4" placeholder="Scrivi il tuo messaggio..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    <textarea required rows="4" placeholder="Scrivi..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
                 </div>
                 <button type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow">Invia</button>
             </form>
         </div>
     </div>
 
-    <!-- Modale passcode area riservata -->
-    <div id="adminModal" onclick="if (event.target === this) closeModal('adminModal')" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+    <div id="adminModal" onclick="if (event.target === this) closeModal('adminModal')" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
         <div id="adminPanel" class="modal-panel bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xl relative">
-            <button onclick="closeModal('adminModal')" class="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600" aria-label="Chiudi"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <button onclick="closeModal('adminModal')" class="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
             <div class="w-12 h-12 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center mb-4">
                 <i class="fa-solid fa-lock"></i>
             </div>
-            <h3 id="adminModalTitle" class="text-xl font-bold mb-1">Area riservata</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Accedi con l'account dello scrittore per aprire la dashboard.</p>
+            <h3 class="text-xl font-bold mb-1">Area riservata</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Accedi con l'account dello scrittore.</p>
             <form onsubmit="handleAdminLogin(event)" class="space-y-3">
-                <label for="adminEmailInput" class="sr-only">Email</label>
-                <input type="email" id="adminEmailInput" name="admin-email" required autocomplete="username" autocapitalize="off" placeholder="Email" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <label for="adminPassInput" class="sr-only">Password</label>
-                <input type="password" id="adminPassInput" name="admin-password" required autocomplete="current-password" autocapitalize="off" placeholder="Password" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <p id="adminError" role="alert" class="hidden text-sm text-red-600 dark:text-red-400"></p>
-                <button id="adminSubmitBtn" type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg text-sm shadow">Accedi</button>
+                <input type="email" id="adminEmailInput" required placeholder="Email" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <input type="password" id="adminPassInput" required placeholder="Password" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <p id="adminError" class="hidden text-sm text-red-600 dark:text-red-400"></p>
+                <button id="adminSubmitBtn" type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow">Accedi</button>
             </form>
         </div>
     </div>
 
-    <!-- Supabase: database condiviso da tutti i dispositivi -->
+    <!-- Script di gestione e Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ---------- Supabase: database condiviso da tutti i dispositivi ----------
-        // Incolla qui l'URL del progetto e la Publishable key (Project Settings > API Keys).
-        // È una chiave pubblica: può stare nel codice, la sicurezza la fanno le regole RLS sul database.
         const SUPABASE_URL = 'https://dlgpvykubqwkryaltwpm.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_poleYS8pxAE2Kr6KW15-vg__cSXf123';
 
         const supabaseReady = SUPABASE_URL.indexOf('TUO-PROGETTO') === -1 && SUPABASE_KEY.indexOf('XXXX') === -1;
         const db = supabaseReady ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-        // Contenuti di riserva: usati solo se il database non è ancora configurato o irraggiungibile,
-        // così la pagina non resta vuota. Con Supabase attivo, gli articoli e i libri veri arrivano da lì.
         const FALLBACK_POSTS = [
             {
                 id: '1',
                 title: "Primo Articolo del Blog",
-                author: "Nome Cognome",
+                author: "Alessio",
                 date: "21 Sep 2026",
                 tags: ["Saggi"],
-                excerpt: "Benvenuti nel mio blog personale. Questo è un esempio di articolo pubblicato che puoi leggere liberamente online...",
-                content: `Benvenuti nel mio blog personale.\n\nHo creato questo spazio per condividere scritti, saggi e note personali con i lettori in modo semplice e diretto, senza dover condividere file esterni o documenti pesanti.\n\nPuoi esplorare gli articoli per argomento usando la sezione Argomenti oppure cercare un termine specifico nella barra di ricerca.`,
+                excerpt: "Benvenuti nel mio blog personale. Esempio di articolo pubblicato...",
+                content: `Benvenuti nel mio blog personale.\n\nSpazio dedicato a scritti e saggi.`,
+                image_url: '',
                 comments: []
             }
         ];
 
-        const FALLBACK_SOURCES = [
-            { id: 'b1', title: "I Don't Have Enough Faith to Be an Atheist", author: 'Norman Geisler e Frank Turek', note: '' },
-            { id: 'b2', title: 'On Guard', author: 'William Lane Craig', note: '' },
-            { id: 'b3', title: 'Reasonable Faith', author: 'William Lane Craig', note: '' },
-            { id: 'b4', title: 'New Testament Exegesis', author: 'Gordon Fee', note: '' },
-            { id: 'b5', title: 'I fatti della salvezza', author: 'Brian Abasciano', note: 'Disponibile solo in italiano.', url: 'https://evangelicalarminians.org/the-facts-of-salvation-a-summary-of-arminian-theologythe-biblical-doctrines-of-grace/', urlLabel: 'Articolo originale (inglese)' }
-        ];
-
-        const MAX_ATTEMPTS = 5;
-        const LOCK_MS = 30000;
-        const BRAND_CLICK_WINDOW_MS = 800;
+        const FALLBACK_SOURCES = [];
 
         let sources = [];
         let posts = [];
         let activeTag = 'All';
         let activePostId = null;
-        let currentMode = 'public';
         let adminUnlocked = false;
         let failedAttempts = 0;
         let lockUntil = 0;
@@ -533,9 +442,18 @@
         let brandClicks = 0;
         let brandTimer = null;
 
-        // ---------- Lettura e scrittura sul database ----------
         function mapDbPost(row) {
-            return { id: row.id, title: row.title, author: row.author, date: row.date, tags: row.tags || [], excerpt: row.excerpt, content: row.content, comments: [] };
+            return { 
+                id: row.id, 
+                title: row.title, 
+                author: row.author, 
+                date: row.date, 
+                tags: row.tags || [], 
+                excerpt: row.excerpt, 
+                content: row.content, 
+                image_url: row.image_url || '',
+                comments: [] 
+            };
         }
 
         function mapDbSource(row) {
@@ -544,15 +462,12 @@
 
         function showSyncError(show) {
             const cms = document.getElementById('syncError');
-            const pub = document.getElementById('publicSyncError');
             if (cms) {
                 cms.classList.toggle('hidden', !show);
-                cms.innerText = 'Non riesco a contattare il database del blog. Controlla la connessione e ricarica la pagina.';
+                cms.innerText = 'Non riesco a contattare il database del blog.';
             }
-            if (pub) pub.classList.toggle('hidden', !show);
         }
 
-        // Lettori e scrittore vedono sempre la stessa cosa: quella salvata nel database.
         async function loadData() {
             if (!supabaseReady) {
                 posts = JSON.parse(JSON.stringify(FALLBACK_POSTS));
@@ -573,7 +488,7 @@
                 sources = sourcesRes.data.map(mapDbSource);
                 showSyncError(false);
             } catch (e) {
-                console.error('Errore di sincronizzazione:', e);
+                console.error('Errore:', e);
                 posts = JSON.parse(JSON.stringify(FALLBACK_POSTS));
                 sources = JSON.parse(JSON.stringify(FALLBACK_SOURCES));
                 showSyncError(true);
@@ -586,14 +501,12 @@
             if (!supabaseReady) { post.comments = []; return; }
 
             const { data, error } = await db.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
-            if (error) { console.error(error); post.comments = []; return; }
+            if (error) { post.comments = []; return; }
             post.comments = data.map(c => ({ author: c.author, text: c.text, date: new Date(c.created_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }) }));
         }
 
         window.onload = async function () {
-            applyTheme(document.documentElement.classList.contains('dark'));
             await loadData();
-            renderTopics();
             renderBlogFeed();
             renderSources();
 
@@ -605,36 +518,21 @@
             renderCMSSourceList();
         };
 
-        // ---------- Tema ----------
         function applyTheme(dark) {
-            const html = document.documentElement;
-            html.classList.toggle('dark', dark);
-            html.classList.toggle('light', !dark);
-            const themeIcon = document.getElementById('themeIcon');
-            if (themeIcon) themeIcon.className = dark ? 'fa-solid fa-sun text-base' : 'fa-solid fa-moon text-base';
+            document.documentElement.classList.toggle('dark', dark);
+            document.documentElement.classList.toggle('light', !dark);
         }
 
-        function toggleDarkMode() {
-            const dark = !document.documentElement.classList.contains('dark');
-            applyTheme(dark);
-            try { localStorage.setItem('blog_theme', dark ? 'dark' : 'light'); } catch (e) {}
-        }
-
-        // ---------- Navigazione ----------
         function scrollToTop() {
-            const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showSection(sectionId) {
-            // La dashboard non si apre mai senza passcode
             if (sectionId === 'cmsView' && !adminUnlocked) {
                 openAdminAccess();
                 return;
             }
-            // Uscire dalla dashboard la richiude
             if (sectionId !== 'cmsView') adminUnlocked = false;
-            currentMode = sectionId === 'cmsView' ? 'cms' : 'public';
 
             document.getElementById('publicView').classList.add('hidden');
             document.getElementById('singlePostView').classList.add('hidden');
@@ -651,21 +549,19 @@
             activeTag = 'All';
             document.getElementById('searchInput').value = '';
             showSection('publicView');
-            renderTopics();
             renderBlogFeed();
         }
 
-        // Pannelli mobile (ricerca / menu)
         function closeMobilePanels() {
-            document.getElementById('searchWrap').classList.add('hidden');
+            document.getElementById('searchMobilePanel').classList.add('hidden');
             document.getElementById('mobileMenu').classList.add('hidden');
             document.getElementById('searchToggle').setAttribute('aria-expanded', 'false');
             document.getElementById('menuToggle').setAttribute('aria-expanded', 'false');
-            document.getElementById('menuIcon').className = 'fa-solid fa-bars text-lg';
+            document.getElementById('menuIcon').className = 'fa-solid fa-bars text-base';
         }
 
         function togglePanel(which) {
-            const panel = document.getElementById(which === 'search' ? 'searchWrap' : 'mobileMenu');
+            const panel = document.getElementById(which === 'search' ? 'searchMobilePanel' : 'mobileMenu');
             const btn = document.getElementById(which === 'search' ? 'searchToggle' : 'menuToggle');
             const willOpen = panel.classList.contains('hidden');
 
@@ -675,14 +571,12 @@
             panel.classList.remove('hidden');
             btn.setAttribute('aria-expanded', 'true');
             if (which === 'menu') {
-                document.getElementById('menuIcon').className = 'fa-solid fa-xmark text-lg';
+                document.getElementById('menuIcon').className = 'fa-solid fa-xmark text-base';
             } else {
-                // Focus immediato: su iOS la tastiera compare solo se il focus parte dal gesto dell'utente
-                document.getElementById('searchInput').focus();
+                document.getElementById('searchInputMobile').focus();
             }
         }
 
-        // ---------- Area riservata: accesso ----------
         function handleBrandClick(event) {
             event.preventDefault();
             brandClicks++;
@@ -693,19 +587,15 @@
                 openAdminAccess();
                 return;
             }
-
-            // Il singolo clic continua a portare alla Home
             goHome();
-            brandTimer = setTimeout(() => { brandClicks = 0; }, BRAND_CLICK_WINDOW_MS);
+            brandTimer = setTimeout(() => { brandClicks = 0; }, 800);
         }
 
         document.addEventListener('keydown', (e) => {
-            const isA = (e.key && e.key.toLowerCase() === 'a') || e.code === 'KeyA';
-            if (e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey && isA) {
+            if (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === 'a' || e.code === 'KeyA')) {
                 e.preventDefault();
                 if (adminUnlocked) exitAdmin();
                 else openAdminAccess();
-                return;
             }
             if (e.key === 'Escape') {
                 ['adminModal', 'contactModal'].forEach(id => {
@@ -717,302 +607,133 @@
 
         async function openAdminAccess() {
             if (adminUnlocked) return;
-
-            // La sessione resta valida anche se hai lasciato la dashboard: niente password ogni volta
             if (supabaseReady) {
                 const { data: { session } } = await db.auth.getSession();
                 if (session) {
                     adminUnlocked = true;
                     await loadData();
-                    renderTopics();
-                    renderBlogFeed();
-                    renderCMSPostList();
-                    renderSources();
-                    renderCMSSourceList();
                     showSection('cmsView');
                     return;
                 }
             }
-
             document.getElementById('adminEmailInput').value = '';
             document.getElementById('adminPassInput').value = '';
-            if (Date.now() >= lockUntil) hideAdminError();
-            else startLockCountdown();
             openModal('adminModal');
             document.getElementById('adminEmailInput').focus();
         }
 
-        function showAdminError(msg) {
-            const el = document.getElementById('adminError');
-            el.innerText = msg;
-            el.classList.remove('hidden');
-        }
-
-        function hideAdminError() {
-            document.getElementById('adminError').classList.add('hidden');
-            document.getElementById('adminSubmitBtn').disabled = false;
-        }
-
-        function startLockCountdown() {
-            const btn = document.getElementById('adminSubmitBtn');
-            clearInterval(lockTimer);
-            const tick = () => {
-                const left = Math.ceil((lockUntil - Date.now()) / 1000);
-                if (left <= 0) {
-                    clearInterval(lockTimer);
-                    hideAdminError();
-                    return;
-                }
-                btn.disabled = true;
-                showAdminError(`Troppi tentativi. Riprova tra ${left} secondi.`);
-            };
-            tick();
-            lockTimer = setInterval(tick, 500);
-        }
-
         async function handleAdminLogin(event) {
             event.preventDefault();
-            if (Date.now() < lockUntil) return;
-            if (!supabaseReady) {
-                showAdminError('Il database non è ancora configurato: vedi le istruzioni per collegare Supabase.');
-                return;
-            }
+            const emailInput = document.getElementById('adminEmailInput').value.trim();
+            const passInput = document.getElementById('adminPassInput').value;
 
-            const emailInput = document.getElementById('adminEmailInput');
-            const passInput = document.getElementById('adminPassInput');
-            const btn = document.getElementById('adminSubmitBtn');
-            btn.disabled = true;
-
-            const { error } = await db.auth.signInWithPassword({ email: emailInput.value.trim(), password: passInput.value });
-            btn.disabled = false;
-
+            const { error } = await db.auth.signInWithPassword({ email: emailInput, password: passInput });
             if (!error) {
-                failedAttempts = 0;
-                passInput.value = '';
-                hideAdminError();
                 adminUnlocked = true;
                 closeModal('adminModal');
                 await loadData();
-                renderTopics();
-                renderBlogFeed();
-                renderCMSPostList();
-                renderSources();
-                renderCMSSourceList();
                 showSection('cmsView');
                 return;
             }
-
-            failedAttempts++;
-            passInput.value = '';
-            const panel = document.getElementById('adminPanel');
-            panel.classList.remove('shake');
-            void panel.offsetWidth; // riavvia l'animazione
-            panel.classList.add('shake');
-
-            if (failedAttempts >= MAX_ATTEMPTS) {
-                failedAttempts = 0;
-                lockUntil = Date.now() + LOCK_MS;
-                startLockCountdown();
-            } else {
-                showAdminError('Email o password non corrette.');
-                passInput.focus();
-            }
+            document.getElementById('adminError').innerText = 'Credenziali errate.';
+            document.getElementById('adminError').classList.remove('hidden');
         }
 
         function exitAdmin() {
-            document.getElementById('settingsForm').reset();
-            document.getElementById('settingsMsg').classList.add('hidden');
+            adminUnlocked = false;
             showSection('publicView');
         }
 
         async function handleSignOut() {
             if (supabaseReady) await db.auth.signOut();
-            adminUnlocked = false;
             exitAdmin();
-        }
-
-        // ---------- Dashboard: cambio password ----------
-        function showSettingsMsg(msg, ok) {
-            const el = document.getElementById('settingsMsg');
-            el.innerText = msg;
-            el.className = 'text-sm ' + (ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400');
-            el.classList.remove('hidden');
         }
 
         async function handleChangePassword(event) {
             event.preventDefault();
             const next = document.getElementById('newPassInput').value;
-            const confirmValue = document.getElementById('confirmPassInput').value;
-
-            if (next.length < 6) {
-                showSettingsMsg('La nuova password deve avere almeno 6 caratteri.', false);
+            const confirmVal = document.getElementById('confirmPassInput').value;
+            if (next !== confirmVal || next.length < 6) {
+                alert('Errore password.');
                 return;
             }
-            if (next !== confirmValue) {
-                showSettingsMsg('La nuova password e la conferma non coincidono.', false);
-                return;
-            }
-
             const { error } = await db.auth.updateUser({ password: next });
-            if (error) {
-                showSettingsMsg('Impossibile aggiornare la password: ' + error.message, false);
-                return;
-            }
-
-            document.getElementById('settingsForm').reset();
-            showSettingsMsg('Password aggiornata.', true);
+            if (error) alert(error.message);
+            else alert('Password aggiornata.');
         }
-
-        // ---------- Argomenti, filtri e ricerca ----------
-        function renderTopics() {
-            const list = document.getElementById('topicList');
-            const map = {};
-            posts.forEach(p => p.tags.forEach(t => {
-                const key = t.toLowerCase();
-                if (!map[key]) map[key] = { label: t, count: 0 };
-                map[key].count++;
-            }));
-
-            const topics = Object.values(map).sort((a, b) => a.label.localeCompare(b.label, 'it'));
-            if (topics.length === 0) {
-                list.innerHTML = `<li class="text-xs text-gray-400 py-2">Nessun argomento ancora.</li>`;
-                return;
-            }
-
-            list.innerHTML = topics.map(t => {
-                const active = activeTag.toLowerCase() === t.label.toLowerCase();
-                return `
-                    <li>
-                        <a href="#" data-tag="${escapeHtml(t.label)}" class="flex justify-between items-center min-h-[44px] ${active ? 'text-brand-700 dark:text-white font-bold' : 'text-brand-600 dark:text-brand-400'} hover:underline">
-                            <span>${escapeHtml(t.label)}</span>
-                            <span class="text-xs text-gray-400 dark:text-gray-500 font-normal">${t.count}</span>
-                        </a>
-                    </li>`;
-            }).join('');
-        }
-
-        // Un solo listener per tutti i tag (sidebar e card): niente stringhe nei gestori inline
-        document.addEventListener('click', (e) => {
-            const el = e.target.closest('[data-tag]');
-            if (!el) return;
-            e.preventDefault();
-            filterByTag(el.getAttribute('data-tag'));
-        });
 
         function filterByTag(tag) {
             activeTag = tag;
-            if (document.getElementById('publicView').classList.contains('hidden')) {
-                showSection('publicView');
-            } else {
-                scrollToTop();
-            }
-            renderTopics();
+            showSection('publicView');
             renderBlogFeed();
         }
 
         function handleSearch() {
-            if (document.getElementById('publicView').classList.contains('hidden')) {
-                showSection('publicView');
-            }
+            showSection('publicView');
             renderBlogFeed();
         }
 
         function handleSearchSubmit(event) {
             event.preventDefault();
-            document.getElementById('searchInput').blur(); // chiude la tastiera su mobile
             renderBlogFeed();
-        }
-
-        function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            renderBlogFeed();
-        }
-
-        function renderActiveFilters() {
-            const bar = document.getElementById('activeFilterBar');
-            const q = document.getElementById('searchInput').value.trim();
-            const chipClass = 'inline-flex items-center gap-2 min-h-[36px] pl-3 pr-3 rounded-full bg-brand-50 dark:bg-slate-800 text-brand-700 dark:text-gray-200 text-sm font-medium border border-brand-100 dark:border-slate-700';
-            const chips = [];
-
-            if (activeTag !== 'All') {
-                chips.push(`<button type="button" onclick="filterByTag('All')" aria-label="Rimuovi il filtro argomento" class="${chipClass}">Argomento: ${escapeHtml(activeTag)} <i class="fa-solid fa-xmark text-xs"></i></button>`);
-            }
-            if (q) {
-                chips.push(`<button type="button" onclick="clearSearch()" aria-label="Cancella la ricerca" class="${chipClass}">Ricerca: ${escapeHtml(q)} <i class="fa-solid fa-xmark text-xs"></i></button>`);
-            }
-
-            bar.innerHTML = chips.join('');
-            bar.classList.toggle('hidden', chips.length === 0);
         }
 
         function renderBlogFeed() {
             const container = document.getElementById('blogFeedContainer');
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
 
             let filtered = posts;
-
             if (activeTag !== 'All') {
                 filtered = filtered.filter(p => p.tags.map(t => t.toLowerCase()).includes(activeTag.toLowerCase()));
             }
-
-            if (searchQuery) {
-                filtered = filtered.filter(p =>
-                    p.title.toLowerCase().includes(searchQuery) ||
-                    p.excerpt.toLowerCase().includes(searchQuery) ||
-                    p.tags.some(t => t.toLowerCase().includes(searchQuery))
-                );
+            if (q) {
+                filtered = filtered.filter(p => p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q));
             }
 
-            renderActiveFilters();
-
+            if (!container) return;
             if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800">
-                        <i class="fa-regular fa-folder-open text-4xl text-gray-400 mb-3"></i>
-                        <p class="text-gray-500">Nessun articolo trovato.</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500">Nessun articolo trovato.</div>`;
                 return;
             }
 
             container.innerHTML = filtered.map(post => `
-                <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 sm:p-8 shadow-sm hover:shadow-md transition group">
-                    <h2 class="text-xl sm:text-2xl font-extrabold leading-snug text-gray-900 dark:text-white mb-3 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
-                        <a href="#" onclick="event.preventDefault(); openSinglePost('${post.id}')">${escapeHtml(post.title)}</a>
-                    </h2>
-
-                    <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed mb-6 line-clamp-3">
-                        ${escapeHtml(post.excerpt)}
-                    </p>
-
-                    <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100 dark:border-slate-800/80 text-xs sm:text-sm text-gray-500">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-8 h-8 shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-700 dark:text-slate-200">
-                                ${escapeHtml(post.author.charAt(0))}
+                <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                    <div>
+                        ${post.image_url ? `
+                            <a href="#" onclick="event.preventDefault(); openSinglePost('${post.id}')" class="block aspect-video w-full overflow-hidden bg-gray-100 dark:bg-slate-800">
+                                <img src="${escapeHtml(post.image_url)}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            </a>
+                        ` : ''}
+                        <div class="p-5">
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                ${post.tags.map(t => `<span class="text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">#${escapeHtml(t)}</span>`).join(' ')}
                             </div>
-                            <div class="min-w-0">
-                                <span class="font-medium text-gray-900 dark:text-gray-200 block leading-tight truncate">${escapeHtml(post.author)}</span>
-                                <span class="text-gray-400 text-xs">${post.date}</span>
-                            </div>
+                            <h2 class="text-lg font-bold leading-snug text-gray-900 dark:text-white mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
+                                <a href="#" onclick="event.preventDefault(); openSinglePost('${post.id}')">${escapeHtml(post.title)}</a>
+                            </h2>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4 line-clamp-3">${escapeHtml(post.excerpt)}</p>
                         </div>
-
-                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            ${post.tags.map(t => `<button type="button" data-tag="${escapeHtml(t)}" class="min-h-[32px] px-1 text-gray-500 dark:text-gray-400 font-medium hover:underline">${escapeHtml(t)}</button>`).join('<span aria-hidden="true">•</span>')}
-                        </div>
+                    </div>
+                    <div class="flex items-center justify-between px-5 py-4 border-t border-gray-100 dark:border-slate-800 text-xs text-gray-500">
+                        <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(post.author)}</span>
+                        <span>${post.date}</span>
                     </div>
                 </article>
             `).join('');
         }
 
-        // ---------- Singolo articolo e commenti ----------
         async function openSinglePost(postId) {
             const post = posts.find(p => p.id === postId);
             if (!post) return;
-
             activePostId = postId;
 
             const headerContainer = document.getElementById('postHeader');
             headerContainer.innerHTML = `
+                ${post.image_url ? `
+                    <div class="w-full h-72 sm:h-96 rounded-xl overflow-hidden mb-6 bg-gray-100 dark:bg-slate-800">
+                        <img src="${escapeHtml(post.image_url)}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover">
+                    </div>
+                ` : ''}
                 <div class="text-xs text-gray-400 mb-2">${post.date}</div>
                 <h1 class="post-title font-extrabold text-gray-900 dark:text-white mb-4">${escapeHtml(post.title)}</h1>
                 <div class="flex items-center gap-3 mt-4">
@@ -1025,18 +746,10 @@
                 </div>
             `;
 
-            const formattedContent = post.content
-                .split('\n\n')
-                .map(para => `<p>${escapeHtml(para)}</p>`)
-                .join('');
-
-            document.getElementById('postBody').innerHTML = formattedContent;
-
-            const tagsList = document.getElementById('postTagsList');
-            tagsList.innerHTML = post.tags.map(t => `<span class="bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 text-xs px-3 py-1 rounded-full font-medium">#${escapeHtml(t)}</span>`).join('');
+            document.getElementById('postBody').innerHTML = post.content.split('\n\n').map(p => `<p>${escapeHtml(p)}</p>`).join('');
+            document.getElementById('postTagsList').innerHTML = post.tags.map(t => `<span class="bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 text-xs px-3 py-1 rounded-full font-medium">#${escapeHtml(t)}</span>`).join('');
 
             showSection('singlePostView');
-            document.getElementById('commentsList').innerHTML = `<p class="text-sm text-gray-400 italic">Caricamento commenti...</p>`;
             await loadCommentsFor(postId);
             renderComments();
         }
@@ -1044,143 +757,97 @@
         function renderComments() {
             const post = posts.find(p => p.id === activePostId);
             if (!post) return;
-
             const comments = post.comments || [];
             document.getElementById('commentCount').innerText = comments.length;
-
-            const listContainer = document.getElementById('commentsList');
-            if (comments.length === 0) {
-                listContainer.innerHTML = `<p class="text-sm text-gray-400 italic">Nessun commento ancora presente.</p>`;
-                return;
-            }
-
-            listContainer.innerHTML = comments.map(c => `
-                <div class="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
-                    <div class="flex justify-between items-center gap-3 mb-1">
-                        <span class="font-semibold text-sm text-gray-900 dark:text-white">${escapeHtml(c.author)}</span>
-                        <span class="text-xs text-gray-400 shrink-0">${c.date}</span>
+            document.getElementById('commentsList').innerHTML = comments.length === 0 ? 
+                `<p class="text-sm text-gray-400 italic">Nessun commento.</p>` :
+                comments.map(c => `
+                    <div class="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
+                        <div class="flex justify-between items-center gap-3 mb-1">
+                            <span class="font-semibold text-sm text-gray-900 dark:text-white">${escapeHtml(c.author)}</span>
+                            <span class="text-xs text-gray-400">${c.date}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">${escapeHtml(c.text)}</p>
                     </div>
-                    <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">${escapeHtml(c.text)}</p>
-                </div>
-            `).join('');
+                `).join('');
         }
 
         async function handleAddComment(event) {
             event.preventDefault();
             const author = document.getElementById('commentAuthor').value.trim();
             const text = document.getElementById('commentText').value.trim();
-
             if (!author || !text || !activePostId || !supabaseReady) return;
 
-            const btn = event.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-
-            const { error } = await db.from('comments').insert({ post_id: activePostId, author: author, text: text });
-            btn.disabled = false;
-
-            if (error) {
-                alert('Non sono riuscito a pubblicare il commento: ' + error.message);
-                return;
-            }
-
+            await db.from('comments').insert({ post_id: activePostId, author, text });
             await loadCommentsFor(activePostId);
             renderComments();
             document.getElementById('commentText').value = '';
         }
 
-        // ---------- Dashboard: articoli ----------
         async function handleSaveArticle(event) {
             event.preventDefault();
-            if (!adminUnlocked || !supabaseReady) { openAdminAccess(); return; }
+            if (!adminUnlocked || !supabaseReady) return;
 
-            const idInput = document.getElementById('postId').value;
+            const id = document.getElementById('postId').value;
             const title = document.getElementById('postTitleInput').value.trim();
             const author = document.getElementById('postAuthorInput').value.trim();
-            const tagsRaw = document.getElementById('postTagsInput').value.trim();
+            const tags = document.getElementById('postTagsInput').value.split(',').map(t => t.trim()).filter(Boolean);
+            const image_url = document.getElementById('postImageInput').value.trim();
             const excerpt = document.getElementById('postExcerptInput').value.trim();
             const content = document.getElementById('postContentInput').value.trim();
 
-            const tagsArray = tagsRaw.split(',').map(t => t.trim()).filter(t => t.length > 0);
-            const tags = tagsArray.length > 0 ? tagsArray : ["Generale"];
-            const saveBtn = event.target.querySelector('button[type="submit"]');
-            saveBtn.disabled = true;
-
             let error;
-            if (idInput) {
-                ({ error } = await db.from('posts').update({ title, author, tags, excerpt, content }).eq('id', idInput));
+            if (id) {
+                ({ error } = await db.from('posts').update({ title, author, tags, image_url, excerpt, content }).eq('id', id));
             } else {
                 const date = new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
-                ({ error } = await db.from('posts').insert({ title, author, tags, excerpt, content, date }));
-            }
-            saveBtn.disabled = false;
-
-            if (error) {
-                alert('Impossibile pubblicare: ' + error.message);
-                return;
+                ({ error } = await db.from('posts').insert({ title, author, tags, image_url, excerpt, content, date }));
             }
 
+            if (error) { alert('Errore salvataggio: ' + error.message); return; }
             await loadData();
-            renderTopics();
             renderBlogFeed();
             renderCMSPostList();
             resetEditorForm();
-
-            alert('Articolo pubblicato con successo!');
+            alert('Articolo salvato!');
         }
 
         function renderCMSPostList() {
             const container = document.getElementById('cmsPostList');
             document.getElementById('postCountBadge').innerText = posts.length;
-
-            if (posts.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-400">Nessun articolo presente.</p>`;
-                return;
-            }
-
-            container.innerHTML = posts.map(post => `
-                <div class="p-3 bg-gray-50 dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-800 flex justify-between items-center gap-3">
+            container.innerHTML = posts.map(p => `
+                <div class="p-3 bg-gray-50 dark:bg-slate-800/65 rounded-xl border border-gray-200 dark:border-slate-800 flex justify-between items-center gap-3">
                     <div class="overflow-hidden">
-                        <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 truncate">${escapeHtml(post.title)}</h4>
-                        <span class="text-xs text-gray-400">${post.date}</span>
+                        <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 truncate">${escapeHtml(p.title)}</h4>
+                        <span class="text-xs text-gray-400">${p.date}</span>
                     </div>
                     <div class="flex items-center shrink-0">
-                        <button onclick="editPost('${post.id}')" class="w-11 h-11 flex items-center justify-center text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Modifica" aria-label="Modifica articolo">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button onclick="deletePost('${post.id}')" class="w-11 h-11 flex items-center justify-center text-red-600 hover:bg-red-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Elimina" aria-label="Elimina articolo">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                        <button onclick="editPost('${p.id}')" class="w-10 h-10 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deletePost('${p.id}')" class="w-10 h-10 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function editPost(postId) {
-            if (!adminUnlocked) return;
-            const post = posts.find(p => p.id === postId);
-            if (!post) return;
-
-            document.getElementById('postId').value = post.id;
-            document.getElementById('postTitleInput').value = post.title;
-            document.getElementById('postAuthorInput').value = post.author;
-            document.getElementById('postTagsInput').value = post.tags.join(', ');
-            document.getElementById('postExcerptInput').value = post.excerpt;
-            document.getElementById('postContentInput').value = post.content;
-
+        function editPost(id) {
+            const p = posts.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('postId').value = p.id;
+            document.getElementById('postTitleInput').value = p.title;
+            document.getElementById('postAuthorInput').value = p.author;
+            document.getElementById('postTagsInput').value = p.tags.join(', ');
+            document.getElementById('postImageInput').value = p.image_url || '';
+            document.getElementById('postExcerptInput').value = p.excerpt;
+            document.getElementById('postContentInput').value = p.content;
             document.getElementById('editorFormTitle').innerText = "Modifica Articolo";
             document.getElementById('saveBtnText').innerText = "Aggiorna Articolo";
             scrollToTop();
         }
 
-        async function deletePost(postId) {
-            if (!adminUnlocked || !supabaseReady) return;
-            if (!confirm("Vuoi eliminare questo articolo?")) return;
-
-            const { error } = await db.from('posts').delete().eq('id', postId);
-            if (error) { alert('Impossibile eliminare: ' + error.message); return; }
-
-            posts = posts.filter(p => p.id !== postId);
-            renderTopics();
+        async function deletePost(id) {
+            if (!confirm('Eliminare?')) return;
+            await db.from('posts').delete().eq('id', id);
+            await loadData();
             renderBlogFeed();
             renderCMSPostList();
         }
@@ -1192,167 +859,52 @@
             document.getElementById('saveBtnText').innerText = "Pubblica Articolo";
         }
 
-        // ---------- Fonti: libri letti ----------
-        // Accetta solo link http/https (blocca javascript: e simili)
-        function safeUrl(u) {
-            if (!u) return '';
-            try {
-                const parsed = new URL(u);
-                return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.href : '';
-            } catch (e) {
-                return '';
-            }
-        }
         function renderSources() {
             const list = document.getElementById('sourcesList');
-
-            if (sources.length === 0) {
-                list.innerHTML = `
-                    <li class="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800">
-                        <i class="fa-solid fa-book-open text-4xl text-gray-400 mb-3"></i>
-                        <p class="text-gray-500">Nessun libro in elenco per ora.</p>
-                    </li>
-                `;
-                return;
-            }
-
             list.innerHTML = sources.map(s => `
-                <li class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 sm:p-6 shadow-sm flex gap-4">
-                    <div class="w-10 h-10 shrink-0 rounded-lg bg-brand-50 dark:bg-slate-800 text-brand-600 dark:text-brand-400 flex items-center justify-center">
-                        <i class="fa-solid fa-book"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <h2 class="font-bold text-lg leading-snug text-gray-900 dark:text-white">${escapeHtml(s.title)}</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(s.author)}</p>
-                        ${s.note ? `<p class="mt-2 text-sm text-gray-700 dark:text-gray-300 leading-relaxed" style="white-space: pre-line">${escapeHtml(s.note)}</p>` : ''}
-                        ${safeUrl(s.url) ? `<a href="${escapeHtml(safeUrl(s.url))}" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex items-center gap-2 min-h-[44px] sm:min-h-0 text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline"><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> ${escapeHtml(s.urlLabel || 'Vai alla fonte')}</a>` : ''}
-                    </div>
+                <li class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 shadow-sm">
+                    <h2 class="font-bold text-lg text-gray-900 dark:text-white">${escapeHtml(s.title)}</h2>
+                    <p class="text-sm text-gray-500">${escapeHtml(s.author)}</p>
+                    ${s.note ? `<p class="mt-2 text-sm text-gray-700 dark:text-gray-300">${escapeHtml(s.note)}</p>` : ''}
                 </li>
             `).join('');
         }
 
         function renderCMSSourceList() {
-            const container = document.getElementById('cmsSourceList');
-            document.getElementById('sourceCountBadge').innerText = sources.length;
-
-            if (sources.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-400">Nessun libro presente.</p>`;
-                return;
-            }
-
-            container.innerHTML = sources.map(s => `
-                <div class="p-3 bg-gray-50 dark:bg-slate-800/60 rounded-xl border border-gray-200 dark:border-slate-800 flex justify-between items-center gap-3">
-                    <div class="overflow-hidden">
-                        <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 truncate">${escapeHtml(s.title)}</h4>
-                        <span class="text-xs text-gray-400 block truncate">${escapeHtml(s.author)}</span>
-                    </div>
-                    <div class="flex items-center shrink-0">
-                        <button onclick="editSource('${s.id}')" class="w-11 h-11 flex items-center justify-center text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Modifica" aria-label="Modifica libro">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button onclick="deleteSource('${s.id}')" class="w-11 h-11 flex items-center justify-center text-red-600 hover:bg-red-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Elimina" aria-label="Elimina libro">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
+            document.getElementById('cmsSourceList').innerHTML = sources.map(s => `
+                <div class="p-3 bg-gray-50 dark:bg-slate-800/60 rounded-xl border flex justify-between items-center">
+                    <span class="text-sm truncate font-medium">${escapeHtml(s.title)}</span>
+                    <button onclick="deleteSource('${s.id}')" class="text-red-600 p-2"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `).join('');
         }
 
         async function handleSaveSource(event) {
             event.preventDefault();
-            if (!adminUnlocked || !supabaseReady) { openAdminAccess(); return; }
-
-            const idInput = document.getElementById('sourceId').value;
             const title = document.getElementById('sourceTitleInput').value.trim();
             const author = document.getElementById('sourceAuthorInput').value.trim();
             const note = document.getElementById('sourceNoteInput').value.trim();
-            const url = safeUrl(document.getElementById('sourceUrlInput').value.trim());
-            if (!title || !author) return;
-
-            const saveBtn = event.target.querySelector('button[type="submit"]');
-            saveBtn.disabled = true;
-
-            let error;
-            if (idInput) {
-                ({ error } = await db.from('sources').update({ title, author, note, url }).eq('id', idInput));
-            } else {
-                ({ error } = await db.from('sources').insert({ title, author, note, url }));
-            }
-            saveBtn.disabled = false;
-
-            if (error) {
-                alert('Impossibile salvare il libro: ' + error.message);
-                return;
-            }
-
+            const url = document.getElementById('sourceUrlInput').value.trim();
+            await db.from('sources').insert({ title, author, note, url });
             await loadData();
-            renderTopics();
-            renderBlogFeed();
             renderSources();
             renderCMSSourceList();
-            resetSourceForm();
-        }
-
-        function editSource(sourceId) {
-            if (!adminUnlocked) return;
-            const source = sources.find(s => s.id === sourceId);
-            if (!source) return;
-
-            document.getElementById('sourceId').value = source.id;
-            document.getElementById('sourceTitleInput').value = source.title;
-            document.getElementById('sourceAuthorInput').value = source.author;
-            document.getElementById('sourceNoteInput').value = source.note || '';
-            document.getElementById('sourceUrlInput').value = safeUrl(source.url);
-            document.getElementById('sourceSaveText').innerText = 'Aggiorna libro';
-            document.getElementById('sourceTitleInput').scrollIntoView({ block: 'center' });
-            document.getElementById('sourceTitleInput').focus();
-        }
-
-        async function deleteSource(sourceId) {
-            if (!adminUnlocked || !supabaseReady) return;
-            if (!confirm('Vuoi eliminare questo libro dall\'elenco?')) return;
-
-            const { error } = await db.from('sources').delete().eq('id', sourceId);
-            if (error) { alert('Impossibile eliminare: ' + error.message); return; }
-
-            sources = sources.filter(s => s.id !== sourceId);
-            renderSources();
-            renderCMSSourceList();
-        }
-
-        function resetSourceForm() {
             document.getElementById('sourceForm').reset();
-            document.getElementById('sourceId').value = '';
-            document.getElementById('sourceSaveText').innerText = 'Aggiungi libro';
         }
 
-        // ---------- Modali ----------
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
+        async function deleteSource(id) {
+            await db.from('sources').delete().eq('id', id);
+            await loadData();
+            renderSources();
+            renderCMSSourceList();
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-            const anyOpen = ['adminModal', 'contactModal'].some(m => !document.getElementById(m).classList.contains('hidden'));
-            if (!anyOpen) document.body.classList.remove('overflow-hidden');
-            if (id === 'adminModal') {
-                document.getElementById('adminPassInput').value = '';
-            }
-        }
-
-        function copyCurrentLink() {
-            document.execCommand('copy');
-            alert('Link copiato negli appunti!');
-        }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function copyCurrentLink() { navigator.clipboard.writeText(window.location.href); alert('Copiato!'); }
 
         function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
 </body>
