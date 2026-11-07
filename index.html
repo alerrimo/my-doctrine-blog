@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
     <meta name="color-scheme" content="light dark">
-    <title>Il Mio Blog Personale</title>
+    <title>ricercadellaverità-pursuitoftruth</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts EB Garamond -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">    
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -50,6 +51,11 @@
         })();
     </script>
     <style>
+
+        body {
+    font-family: 'JosefinSans', sans-serif;
+  }
+
         html {
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
@@ -139,15 +145,6 @@
 <body class="bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-100 min-h-screen flex flex-col">
 
     <!-- Barra superiore pubblica: solo stato e tema (nessun accesso all'area riservata) -->
-    <div class="bg-slate-900 text-white text-xs sm:text-sm px-4 border-b border-slate-800 flex justify-between items-center sticky top-0 z-40 shadow-md" style="padding-top: calc(0.25rem + env(safe-area-inset-top, 0px)); padding-bottom: 0.25rem;">
-        <div class="flex items-center gap-2">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="font-medium text-slate-300 hidden sm:inline">Stato Blog: <strong class="text-white">Online</strong></span>
-        </div>
-        <button onclick="toggleDarkMode()" class="text-slate-400 hover:text-white w-10 h-10 flex items-center justify-center rounded-full transition" title="Cambia tema" aria-label="Cambia tema">
-            <i id="themeIcon" class="fa-solid fa-moon text-base"></i>
-        </button>
-    </div>
 
     <header class="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -158,7 +155,7 @@
                     <!-- 3 clic/tap ravvicinati sul nome aprono l'accesso riservato -->
                     <a href="#" id="brandLink" onclick="handleBrandClick(event)" class="flex items-center gap-2 group min-w-0 select-none">
                         <span id="blogNameDisplay" class="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors truncate">
-                            Alessio Roma - blog
+                            Ricercadellaverità-pursuitoftruth
                         </span>
                     </a>
 
@@ -219,30 +216,23 @@
                     <div class="w-16 h-16 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xl mb-4 shadow-md">
                         AR
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Benvenuti nel mio blog, welcome to my blog</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Chi sono - About me</h3>
                     <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
-                        Hello everyone! 👋
+                        Mi chiamo Alessio, sono un ragazzo di 21 anni, senza formazione teologica o accademica, che si è appassionato allo studio della fede. Questo sito nasce dal desiderio di condividere con i miei amici le mie riflessioni, ma recentemente ho deciso di renderlo pubblico. Qui imparo mettendomi alla prova e condivido il mio percorso, mentre costruisco la mia prospettiva sulla teologia e sulla fede.
 
-                        I'm not a theologian or an academic, just a 21-year-old christian passionate about studying faith and theological topics.
+                        Scrivo analisi ed esegesi bibliche, letture e riflessioni, cercando di creare confronti costruttivi con diverse dottrine e denominazioni. Cerco di presentare i contenuti in modo chiaro, pulito e ordinato, così che siano accessibili a chiunque voglia approfondire.
 
-                        I created this website to share my learning journey. My goal is to learn by doing, putting myself to the test through biblical exegesis and a constructive commentary on different doctrines and denominations.
+                        Esplora pure gli articoli e, se hai una domanda, un suggerimento o un’opinione da condividere, sei il benvenuto: il confronto rispettoso è ben accetto.
 
-                        This space was built to gather analyses, readings, and reflections in a clean, organized, and accessible way, allowing anyone who wants to explore or share these topics to do so with the convenience of a dedicated web page.
+                        <br>About me <br>
+                        My name is Alessio; I’m a 21-year-old man with no theological or academic training who has developed a passion for studying the faith. This site grew out of a desire to share my reflections with my friends, but I recently decided to make it public. Some of these friends are not from Italy and therefore I will be posting every article also in english language. Here, I learn by challenging myself and share my journey as I develop my own perspective on theology and faith.
 
-                        If you're curious, have suggestions, or want to exchange ideas, you're more than welcome here!
-                        
-                        Ciao a tutti! 👋
+                        I write biblical analyses and exegeses, as well as readings and reflections, seeking to foster constructive dialogue with various doctrines and denominations. I strive to present the content in a clear, concise, and organized manner so that it is accessible to anyone who wishes to delve deeper.
 
-                        Non sono un teologo né un accademico: sono semplicemente un ragazzo di 21 anni che si è appassionato allo studio della fede e degli argomenti teologici.
-
-                        Ho creato questo sito web per condividere il mio percorso di crescita e apprendimento. Il mio obiettivo è imparare sul campo, mettendomi alla prova attraverso l'esegesi biblica e il confronto costruttivo con diverse dottrine e denominazioni.
-
-                        Questo spazio nasce per raccogliere analisi, letture e riflessioni in modo chiaro, pulito e ordinato, permettendo a chiunque voglia approfondire o condividere questi contenuti di farlo con la comodità e la fruibilità di una pagina web dedicata.
-
-                        Se sei curioso, hai suggerimenti o vuoi scambiare un'opinione, sei il benvenuto!
+                        Feel free to explore the articles, and if you have a question, a suggestion, or an opinion to share, you’re welcome to do so: respectful dialogue is always welcome.
                     </p>
                     <button onclick="openModal('contactModal')" class="w-full min-h-[44px] bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 font-semibold py-2 rounded-xl text-sm transition">
-                        Inviami un messaggio - Send me a message
+                        Comment
                     </button>
                 </div>
 
@@ -258,7 +248,7 @@
 
                 <!-- Footer Copyright Box -->
                 <div class="p-4 text-xs text-gray-400 dark:text-gray-500 leading-relaxed sm:col-span-2 lg:col-span-1">
-                    <p>&copy; 2026 Alessio Roma. Tutti i diritti riservati. All rights reserved.</p>
+                    <p>&copy; Il timore del Signore è il principio della scienza; gli stolti disprezzano la saggezza e l’istruzione. Proverbi 1:7. 2026 Alessio Roma. Tutti i diritti riservati. All rights reserved.</p>
                 </div>
             </aside>
         </div>
