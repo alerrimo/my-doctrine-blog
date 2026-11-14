@@ -8,12 +8,16 @@
     <title>ricercadellaverità-pursuitoftruth</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- AGGIUNGI QUESTO SCRIPT QUI -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -764,8 +768,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
+            
 
-            document.getElementById('postBody').innerHTML = post.content.split('\n\n').map(p => `<p>${escapeHtml(p)}</p>`).join('');
+            document.getElementById('postBody').innerHTML = marked.parse(post.content);
             document.getElementById('postTagsList').innerHTML = post.tags.map(t => `<span class="bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 text-xs px-3 py-1 rounded-full font-medium">#${escapeHtml(t)}</span>`).join('');
 
             showSection('singlePostView');
