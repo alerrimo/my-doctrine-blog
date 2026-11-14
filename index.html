@@ -134,7 +134,7 @@
 
                 <div class="flex items-center gap-6 min-w-0">
                     <a href="#" id="brandLink" onclick="handleBrandClick(event)" class="flex items-center gap-3.5 group shrink-0 select-none">
-                        <img src="https://dlgpvykubqwkryaltwpm.supabase.co/storage/v1/object/public/avatars/20260910_141440%20(1).png" 
+                        <img src="https://dlgpvykubqwkryaltwpm.supabase.co/storage/v1/object/public/avatars/20260910_141440_compressed.png" 
                          alt="Alessio" 
                         class="w-12 h-12 rounded-full object-cover border-2 border-brand-500/30 group-hover:border-brand-500 transition-all shadow-sm shrink-0">
                         <span id="blogNameDisplay" class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors hidden sm:inline">
@@ -411,6 +411,25 @@
     <script>
         const SUPABASE_URL = 'https://dlgpvykubqwkryaltwpm.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_poleYS8pxAE2Kr6KW15-vg__cSXf123';
+
+        function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    document.documentElement.classList.toggle('light', !isDark);
+    localStorage.setItem('blog_theme', isDark ? 'dark' : 'light');
+    
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+        icon.className = isDark ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const currentDark = document.documentElement.classList.contains('dark');
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+        icon.className = currentDark ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
+    }
+});
 
         const supabaseReady = SUPABASE_URL.indexOf('TUO-PROGETTO') === -1 && SUPABASE_KEY.indexOf('XXXX') === -1;
         const db = supabaseReady ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
