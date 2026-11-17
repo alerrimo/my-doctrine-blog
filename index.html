@@ -53,6 +53,14 @@
         })();
     </script>
     <style>
+        
+        .nav-hidden {
+           transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        header {
+            transition: transform 0.3s ease-in-out;
+        }
 
         #postBody h1 { font-size: 2.25rem !important; font-weight: 800 !important; line-height: 1.2; }
         #postBody h2 { font-size: 1.875rem !important; font-weight: 700 !important; line-height: 1.3; }
@@ -140,7 +148,7 @@
 </head>
 <body class="bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-100 min-h-screen flex flex-col">
         <!-- HEADER PULITO, DIVISO SU DUE FILE SU MOBILE-->
-        <header class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-200 dark:border-gray-800">
+        <header id="mainNavbar" class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-200 dark:border-gray-800">
             <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         
                 <!-- RIGA 1 (Mobile) / LATO SINISTRO (PC): Logo, Titolo completo e Toggle Tema su mobile -->
@@ -952,6 +960,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         }));
+
+        let lastScrollTop = 0;
+            const navbar = document.getElementById('mainNavbar');
+
+            window.addEventListener('scroll', function() {
+                // Attivo l'effetto solo su mobile/schermi piccoli (sotto i 768px)
+                if (window.innerWidth < 768) {
+                    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    if (scrollTop > lastScrollTop && scrollTop > 100) {
+                        // Se scorri verso il basso, nasconde la navbar
+                        navbar.classList.add('nav-hidden');
+                    } else {
+                        // Se scorri verso l'alto, la fa riapparire
+                        navbar.classList.remove('nav-hidden');
+                    }
+                    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+                } else {
+                    // Su PC la barra resta sempre fissa in alto
+                    navbar.classList.remove('nav-hidden');
+                }
+            }
+        );
 
     </script>
 </body>
