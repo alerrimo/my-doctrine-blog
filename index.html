@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="it" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="color-scheme" content="light dark">
+    <title>ricercadellaverità-pursuitoftruth</title>
+    <!-- Tailwind CSS -->
+     <!--<script src="https://cdn.tailwindcss.com?plugins=typography"></script> -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            400: '#60a5fa',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            900: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                    }
+                }
+            }
+        };
+
+        (function () {
+            try {
+                var saved = localStorage.getItem('blog_theme');
+                var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (dark) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <style>
+
+        #postBody h1 { font-size: 2.25rem !important; font-weight: 800 !important; line-height: 1.2; }
+        #postBody h2 { font-size: 1.875rem !important; font-weight: 700 !important; line-height: 1.3; }
+        #postBody h3 { font-size: 1.5rem !important; font-weight: 700 !important; line-height: 1.4; }
+        #postBody h4 { font-size: 1.25rem !important; font-weight: 600 !important; }
+        #postBody ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        #postBody ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+        #postBody p { margin-bottom: 1rem; }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            color-scheme: light;
+        }
+        html.dark { color-scheme: dark; }
+
+        body {
+            font-family: 'Bricolage Grotesque', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3 { text-wrap: balance; }
+
+        a, button, [role="button"] {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        .prose p {
+            margin-bottom: 1.25em;
+            line-height: 1.75;
+            font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);
+            white-space: pre-line;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+        }
+        .post-title {
+            font-size: clamp(1.75rem, 1.2rem + 2.4vw, 2.5rem);
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        @media (max-width: 767px) {
+            input, textarea, select { font-size: 16px !important; }
+        }
+
+        .modal-panel {
+            max-height: 90vh;
+            max-height: 90dvh;
+            overflow-y: auto;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 9999px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .shake { animation: shake 0.25s ease-in-out 2; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header pulito con logo personalizzato -->
+    <header class="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+
+                <div class="flex items-center gap-6 min-w-0">
+                    <a href="#" id="brandLink" onclick="handleBrandClick(event)" class="flex items-center gap-3.5 group shrink-0 select-none">
+                        <img src="https://dlgpvykubqwkryaltwpm.supabase.co/storage/v1/object/public/avatars/20260910_141440_compressed.png" 
+                         alt="Alessio" 
+                        class="w-12 h-12 rounded-full object-cover border-2 border-brand-500/30 group-hover:border-brand-500 transition-all shadow-sm shrink-0">
+                        <span id="blogNameDisplay" class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors hidden sm:inline">
+                            Ricercadellaverità-pursuitoftruth
+                        </span>
+                    </a>
+                    
+                    <!-- Pulsante Toggle Tema con Icone Visibili -->
+                    <button id="theme-toggle" onclick="toggleDarkMode()" class="p-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-sm focus:outline-none transition-colors duration-200 shrink-0" aria-label="Cambia tema">
+                        <i id="themeIcon" class="fa-solid fa-moon text-lg"></i>
+                    </button>
+
+                    <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-600 dark:text-gray-300" aria-label="Navigazione principale">
+                        <a href="#" onclick="event.preventDefault(); goHome();" class="hover:text-brand-600 dark:hover:text-white transition">Home</a>
+                        <a href="#" onclick="event.preventDefault(); showSection('publicView');" class="hover:text-brand-600 dark:hover:text-white transition">Articoli</a>
+                        <a href="#" onclick="event.preventDefault(); showSection('sourcesView');" class="hover:text-brand-600 dark:hover:text-white transition">Fonti</a>
+                        <a href="#" onclick="event.preventDefault(); openModal('contactModal');" class="hover:text-brand-600 dark:hover:text-white transition">Contatti</a>
+                    </nav>
+                </div>
+
+                <form id="searchFormDesktop" role="search" onsubmit="handleSearchSubmit(event)" class="hidden md:block w-48 lg:w-64">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                        <input type="search" id="searchInput" oninput="handleSearch()" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Cerca nel blog" placeholder="Cerca nel blog..." class="w-full pl-10 pr-4 py-1.5 text-sm bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                    </div>
+                </form>
+
+                <div class="flex items-center gap-1 md:hidden">
+                    <button id="searchToggle" type="button" onclick="togglePanel('search')" aria-expanded="false" aria-label="Apri la ricerca" class="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-magnifying-glass text-base"></i>
+                    </button>
+                    <button id="menuToggle" type="button" onclick="togglePanel('menu')" aria-expanded="false" aria-label="Apri il menu" class="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+                        <i id="menuIcon" class="fa-solid fa-bars text-base"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="searchMobilePanel" class="hidden pb-3 md:hidden">
+                <form role="search" onsubmit="handleSearchSubmit(event)" class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                    <input type="search" id="searchInputMobile" oninput="document.getElementById('searchInput').value = this.value; handleSearch();" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Cerca nel blog" placeholder="Cerca nel blog..." class="w-full pl-10 pr-4 py-2.5 text-base bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </form>
+            </div>
+
+            <nav id="mobileMenu" class="hidden md:hidden pb-3 pt-2 border-t border-gray-200 dark:border-slate-800" aria-label="Menu mobile">
+                <a href="#" onclick="event.preventDefault(); goHome();" class="flex items-center min-h-[44px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Home</a>
+                <a href="#" onclick="event.preventDefault(); showSection('publicView');" class="flex items-center min-h-[44px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Articoli</a>
+                <a href="#" onclick="event.preventDefault(); showSection('sourcesView');" class="flex items-center min-h-[44px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Fonti</a>
+                <a href="#" onclick="event.preventDefault(); closeMobilePanels(); openModal('contactModal');" class="flex items-center min-h-[44px] px-2 rounded-lg font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800">Contatti</a>
+            </nav>
+        </div>
+    </header>
+    <!-- Contenitore principale articoli -->
+    <main id="publicView" class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="activeFilterBar" class="hidden flex flex-wrap gap-2 mb-6"></div>
+        <div id="blogFeedContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Griglia articoli dinamica -->
+        </div>
+    </main>
+
+    <main id="singlePostView" class="hidden flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <button onclick="showSection('publicView')" class="mb-6 inline-flex items-center min-h-[44px] text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline gap-2">
+            <i class="fa-solid fa-arrow-left"></i> Torna alla home - back to list
+        </button>
+
+        <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 sm:p-8 lg:p-10 shadow-sm">
+            <div id="postHeader" class="border-b border-gray-200 dark:border-slate-800 pb-6 mb-8">
+                <!-- Header con immagine in evidenza -->
+            </div>
+
+            <div id="postBody" class="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
+                <!-- Contenuto articolo -->
+            </div>
+
+            <div class="mt-12 pt-6 border-t border-gray-200 dark:border-slate-800 flex flex-wrap justify-between items-center gap-4">
+                <div id="postTagsList" class="flex flex-wrap gap-2"></div>
+                <button onclick="copyCurrentLink()" class="min-h-[44px] px-4 py-2 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                    <i class="fa-regular fa-copy"></i> Condividi articolo - Share article
+                </button>
+            </div>
+
+            <div class="mt-12 pt-8 border-t border-gray-200 dark:border-slate-800">
+                <h3 class="text-xl font-bold mb-6">Commenti - Comments (<span id="commentCount">0</span>)</h3>
+
+                <form onsubmit="handleAddComment(event)" class="mb-8 space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input type="text" id="commentAuthor" required placeholder="Il tuo nome..." class="px-4 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <textarea id="commentText" required rows="3" placeholder="Scrivi un commento..." class="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    <button type="submit" class="w-full sm:w-auto min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg transition">Pubblica Commento</button>
+                </form>
+
+                <div id="commentsList" class="space-y-4"></div>
+            </div>
+        </article>
+    </main>
+
+    <main id="sourcesView" class="hidden flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Fonti - Sources</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">I libri che ho letto, raccolti qui per chi volesse approfondire. - The books I've read and take inspiration from.</p>
+        </div>
+        <ul id="sourcesList" class="space-y-4"></ul>
+    </main>
+
+    <!-- CMS Dashboard -->
+    <main id="cmsView" class="hidden flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="mb-8 flex flex-wrap justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Pannello Scrittore CMS</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Pubblica i tuoi articoli: sono visibili subito su ogni dispositivo.</p>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button onclick="resetEditorForm()" class="flex-1 sm:flex-none min-h-[44px] bg-gray-200 dark:bg-slate-800 hover:bg-gray-300 text-sm font-medium px-4 py-2 rounded-lg transition">
+                    <i class="fa-solid fa-plus mr-1"></i> Nuovo Articolo
+                </button>
+                <button onclick="exitAdmin()" class="flex-1 sm:flex-none min-h-[44px] border border-gray-300 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800 text-sm font-medium px-4 py-2 rounded-lg transition">
+                    <i class="fa-solid fa-lock mr-1"></i> Esci
+                </button>
+            </div>
+        </div>
+
+        <p id="syncError" class="hidden mb-6 text-sm rounded-lg px-4 py-3 bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-200 border border-red-200 dark:border-red-800/60"></p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+            <div class="lg:col-span-7 bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+                <h2 id="editorFormTitle" class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800">Scrivi un Articolo</h2>
+
+                <form id="articleForm" onsubmit="handleSaveArticle(event)" class="space-y-4">
+                    <input type="hidden" id="postId" value="">
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Titolo dell'Articolo</label>
+                        <input type="text" id="postTitleInput" required placeholder="Inserisci il titolo..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 font-bold text-lg">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nome Autore</label>
+                            <input type="text" id="postAuthorInput" required placeholder="Il tuo nome" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Tag/Categoria (separati da virgola)</label>
+                            <input type="text" id="postTagsInput" required placeholder="Es. Saggi, Note" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">URL Immagine in Evidenza (Supabase o HTTPS)</label>
+                        <input type="url" id="postImageInput" placeholder="https://..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Estratto / Riassunto Breve</label>
+                        <textarea id="postExcerptInput" required rows="2" placeholder="Scrivi una breve introduzione..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Contenuto Completo</label>
+                        <textarea id="postContentInput" required rows="10" placeholder="Scrivi il testo completo qui..." class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+
+                    <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t border-gray-200 dark:border-slate-800">
+                        <button type="button" onclick="resetEditorForm()" class="w-full sm:w-auto min-h-[44px] px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 text-sm font-medium hover:bg-gray-100 dark:hover:bg-slate-800">Annulla</button>
+                        <button type="submit" class="w-full sm:w-auto min-h-[44px] justify-center px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow transition flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span id="saveBtnText">Pubblica Articolo</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+                    <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
+                        <span>I Tuoi Articoli</span>
+                        <span id="postCountBadge" class="bg-brand-100 text-brand-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                    </h2>
+                    <div id="cmsPostList" class="space-y-3 max-h-[60vh] lg:max-h-[600px] overflow-y-auto custom-scrollbar pr-1"></div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+                    <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800 flex justify-between items-center">
+                        <span>Fonti: libri letti</span>
+                        <span id="sourceCountBadge" class="bg-brand-100 text-brand-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                    </h2>
+                    <form id="sourceForm" onsubmit="handleSaveSource(event)" class="space-y-3 mb-5">
+                        <input type="hidden" id="sourceId" value="">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Titolo del libro</label>
+                            <input type="text" id="sourceTitleInput" required autocomplete="off" placeholder="Es. Il nome della rosa" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Autore</label>
+                            <input type="text" id="sourceAuthorInput" required autocomplete="off" placeholder="Es. Umberto Eco" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nota (facoltativa)</label>
+                            <textarea id="sourceNoteInput" rows="2" placeholder="Due righe..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Link (facoltativo)</label>
+                            <input type="url" id="sourceUrlInput" autocomplete="off" placeholder="https://..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                            <button type="button" onclick="resetSourceForm()" class="w-full sm:w-auto min-h-[44px] px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-700 text-sm font-medium hover:bg-gray-100 dark:hover:bg-slate-800">Annulla</button>
+                            <button type="submit" class="w-full sm:w-auto min-h-[44px] px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-book"></i>
+                                <span id="sourceSaveText">Aggiungi libro</span>
+                            </button>
+                        </div>
+                    </form>
+                    <div id="cmsSourceList" class="space-y-3 max-h-[50vh] lg:max-h-[400px] overflow-y-auto custom-scrollbar pr-1"></div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm">
+                    <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-slate-800">Impostazioni di accesso</h2>
+                    <form id="settingsForm" onsubmit="handleChangePassword(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nuova password (min. 6 caratteri)</label>
+                            <input type="password" id="newPassInput" required minlength="6" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Conferma nuova password</label>
+                            <input type="password" id="confirmPassInput" required minlength="6" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <p id="settingsMsg" class="hidden text-sm"></p>
+                        <button type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm py-2 rounded-lg transition">Salva password</button>
+                    </form>
+                    <button type="button" onclick="handleSignOut()" class="mt-3 w-full min-h-[44px] border border-gray-300 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800 text-sm font-medium px-4 py-2 rounded-lg transition">Disconnetti account</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modali -->
+    <div id="contactModal" onclick="if (event.target === this) closeModal('contactModal')" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="modal-panel bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xl relative">
+            <button onclick="closeModal('contactModal')" class="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold mb-4 pr-8">Invia un messaggio</h3>
+            <form onsubmit="event.preventDefault(); alert('Messaggio inviato!'); closeModal('contactModal');" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Il tuo Nome</label>
+                    <input type="text" required placeholder="Nome e Cognome" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Messaggio</label>
+                    <textarea required rows="4" placeholder="Scrivi..." class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                </div>
+                <button type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow">Invia</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminModal" onclick="if (event.target === this) closeModal('adminModal')" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
+        <div id="adminPanel" class="modal-panel bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xl relative">
+            <button onclick="closeModal('adminModal')" class="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="w-12 h-12 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center mb-4">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-1">Area riservata</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Accedi con l'account dello scrittore.</p>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-3">
+                <input type="email" id="adminEmailInput" required placeholder="Email" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <input type="password" id="adminPassInput" required placeholder="Password" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <p id="adminError" class="hidden text-sm text-red-600 dark:text-red-400"></p>
+                <button id="adminSubmitBtn" type="submit" class="w-full min-h-[44px] bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow">Accedi</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script di gestione e Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://dlgpvykubqwkryaltwpm.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_poleYS8pxAE2Kr6KW15-vg__cSXf123';
+
+        function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    document.documentElement.classList.toggle('light', !isDark);
+    localStorage.setItem('blog_theme', isDark ? 'dark' : 'light');
+    
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+        icon.className = isDark ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const currentDark = document.documentElement.classList.contains('dark');
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+        icon.className = currentDark ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
+    }
+});
+
+        const supabaseReady = SUPABASE_URL.indexOf('TUO-PROGETTO') === -1 && SUPABASE_KEY.indexOf('XXXX') === -1;
+        const db = supabaseReady ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+        const FALLBACK_POSTS = [
+            {
+                id: '1',
+                title: "Primo Articolo del Blog",
+                author: "Alessio",
+                date: "21 Sep 2026",
+                tags: ["Saggi"],
+                excerpt: "Benvenuti nel mio blog personale. Esempio di articolo pubblicato...",
+                content: `Benvenuti nel mio blog personale.\n\nSpazio dedicato a scritti e saggi.`,
+                image_url: '',
+                comments: []
+            }
+        ];
+
+        const FALLBACK_SOURCES = [];
+
+        let sources = [];
+        let posts = [];
+        let activeTag = 'All';
+        let activePostId = null;
+        let adminUnlocked = false;
+        let failedAttempts = 0;
+        let lockUntil = 0;
+        let lockTimer = null;
+        let brandClicks = 0;
+        let brandTimer = null;
+
+        function mapDbPost(row) {
+            return { 
+                id: row.id, 
+                title: row.title, 
+                author: row.author, 
+                date: row.date, 
+                tags: row.tags || [], 
+                excerpt: row.excerpt, 
+                content: row.content, 
+                image_url: row.image_url || '',
+                comments: [] 
+            };
+        }
+
+        function mapDbSource(row) {
+            return { id: row.id, title: row.title, author: row.author, note: row.note || '', url: row.url || '', urlLabel: row.url_label || '' };
+        }
+
+        function showSyncError(show) {
+            const cms = document.getElementById('syncError');
+            if (cms) {
+                cms.classList.toggle('hidden', !show);
+                cms.innerText = 'Non riesco a contattare il database del blog.';
+            }
+        }
+
+        async function loadData() {
+            if (!supabaseReady) {
+                posts = JSON.parse(JSON.stringify(FALLBACK_POSTS));
+                sources = JSON.parse(JSON.stringify(FALLBACK_SOURCES));
+                showSyncError(false);
+                return;
+            }
+
+            try {
+                const [postsRes, sourcesRes] = await Promise.all([
+                    db.from('posts').select('*').order('created_at', { ascending: false }),
+                    db.from('sources').select('*').order('created_at', { ascending: false })
+                ]);
+                if (postsRes.error) throw postsRes.error;
+                if (sourcesRes.error) throw sourcesRes.error;
+
+                posts = postsRes.data.map(mapDbPost);
+                sources = sourcesRes.data.map(mapDbSource);
+                showSyncError(false);
+            } catch (e) {
+                console.error('Errore:', e);
+                posts = JSON.parse(JSON.stringify(FALLBACK_POSTS));
+                sources = JSON.parse(JSON.stringify(FALLBACK_SOURCES));
+                showSyncError(true);
+            }
+        }
+
+        async function loadCommentsFor(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+            if (!supabaseReady) { post.comments = []; return; }
+
+            const { data, error } = await db.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+            if (error) { post.comments = []; return; }
+            post.comments = data.map(c => ({ author: c.author, text: c.text, date: new Date(c.created_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }) }));
+        }
+
+        window.onload = async function () {
+            await loadData();
+            renderBlogFeed();
+            renderSources();
+
+            if (supabaseReady) {
+                const { data: { session } } = await db.auth.getSession();
+                if (session) adminUnlocked = true;
+            }
+            renderCMSPostList();
+            renderCMSSourceList();
+        };
+
+        function applyTheme(dark) {
+            document.documentElement.classList.toggle('dark', dark);
+            document.documentElement.classList.toggle('light', !dark);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showSection(sectionId) {
+            if (sectionId === 'cmsView' && !adminUnlocked) {
+                openAdminAccess();
+                return;
+            }
+            if (sectionId !== 'cmsView') adminUnlocked = false;
+
+            document.getElementById('publicView').classList.add('hidden');
+            document.getElementById('singlePostView').classList.add('hidden');
+            document.getElementById('sourcesView').classList.add('hidden');
+            document.getElementById('cmsView').classList.add('hidden');
+            document.getElementById(sectionId).classList.remove('hidden');
+            if (sectionId === 'sourcesView') renderSources();
+
+            closeMobilePanels();
+            scrollToTop();
+        }
+
+        function goHome() {
+            activeTag = 'All';
+            document.getElementById('searchInput').value = '';
+            showSection('publicView');
+            renderBlogFeed();
+        }
+
+        function closeMobilePanels() {
+            document.getElementById('searchMobilePanel').classList.add('hidden');
+            document.getElementById('mobileMenu').classList.add('hidden');
+            document.getElementById('searchToggle').setAttribute('aria-expanded', 'false');
+            document.getElementById('menuToggle').setAttribute('aria-expanded', 'false');
+            document.getElementById('menuIcon').className = 'fa-solid fa-bars text-base';
+        }
+
+        function togglePanel(which) {
+            const panel = document.getElementById(which === 'search' ? 'searchMobilePanel' : 'mobileMenu');
+            const btn = document.getElementById(which === 'search' ? 'searchToggle' : 'menuToggle');
+            const willOpen = panel.classList.contains('hidden');
+
+            closeMobilePanels();
+            if (!willOpen) return;
+
+            panel.classList.remove('hidden');
+            btn.setAttribute('aria-expanded', 'true');
+            if (which === 'menu') {
+                document.getElementById('menuIcon').className = 'fa-solid fa-xmark text-base';
+            } else {
+                document.getElementById('searchInputMobile').focus();
+            }
+        }
+
+        function handleBrandClick(event) {
+            event.preventDefault();
+            brandClicks++;
+            clearTimeout(brandTimer);
+
+            if (brandClicks >= 3) {
+                brandClicks = 0;
+                openAdminAccess();
+                return;
+            }
+            goHome();
+            brandTimer = setTimeout(() => { brandClicks = 0; }, 800);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === 'a' || e.code === 'KeyA')) {
+                e.preventDefault();
+                if (adminUnlocked) exitAdmin();
+                else openAdminAccess();
+            }
+            if (e.key === 'Escape') {
+                ['adminModal', 'contactModal'].forEach(id => {
+                    if (!document.getElementById(id).classList.contains('hidden')) closeModal(id);
+                });
+                closeMobilePanels();
+            }
+        });
+
+        async function openAdminAccess() {
+            if (adminUnlocked) return;
+            if (supabaseReady) {
+                const { data: { session } } = await db.auth.getSession();
+                if (session) {
+                    adminUnlocked = true;
+                    await loadData();
+                    showSection('cmsView');
+                    return;
+                }
+            }
+            document.getElementById('adminEmailInput').value = '';
+            document.getElementById('adminPassInput').value = '';
+            openModal('adminModal');
+            document.getElementById('adminEmailInput').focus();
+        }
+
+        async function handleAdminLogin(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('adminEmailInput').value.trim();
+            const passInput = document.getElementById('adminPassInput').value;
+
+            const { error } = await db.auth.signInWithPassword({ email: emailInput, password: passInput });
+            if (!error) {
+                adminUnlocked = true;
+                closeModal('adminModal');
+                await loadData();
+                showSection('cmsView');
+                return;
+            }
+            document.getElementById('adminError').innerText = 'Credenziali errate.';
+            document.getElementById('adminError').classList.remove('hidden');
+        }
+
+        function exitAdmin() {
+            adminUnlocked = false;
+            showSection('publicView');
+        }
+
+        async function handleSignOut() {
+            if (supabaseReady) await db.auth.signOut();
+            exitAdmin();
+        }
+
+        async function handleChangePassword(event) {
+            event.preventDefault();
+            const next = document.getElementById('newPassInput').value;
+            const confirmVal = document.getElementById('confirmPassInput').value;
+            if (next !== confirmVal || next.length < 6) {
+                alert('Errore password.');
+                return;
+            }
+            const { error } = await db.auth.updateUser({ password: next });
+            if (error) alert(error.message);
+            else alert('Password aggiornata.');
+        }
+
+        function filterByTag(tag) {
+            activeTag = tag;
+            showSection('publicView');
+            renderBlogFeed();
+        }
+
+        function handleSearch() {
+            showSection('publicView');
+            renderBlogFeed();
+        }
+
+        function handleSearchSubmit(event) {
+            event.preventDefault();
+            renderBlogFeed();
+        }
+
+        function renderBlogFeed() {
+            const container = document.getElementById('blogFeedContainer');
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            let filtered = posts;
+            if (activeTag !== 'All') {
+                filtered = filtered.filter(p => p.tags.map(t => t.toLowerCase()).includes(activeTag.toLowerCase()));
+            }
+            if (q) {
+                filtered = filtered.filter(p => p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q));
+            }
+
+            if (!container) return;
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500">Nessun articolo trovato.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(post => `
+                <article class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                    <div>
+                        ${post.image_url ? `
+                            <a href="#" onclick="event.preventDefault(); openSinglePost('${post.id}')" class="block aspect-video w-full overflow-hidden bg-gray-100 dark:bg-slate-800">
+                                <img src="${escapeHtml(post.image_url)}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            </a>
+                        ` : ''}
+                        <div class="p-5">
+                            <div class="flex flex-wrap items-center gap-2 mb-3">
+                                ${post.tags.map(t => `<span class="text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">#${escapeHtml(t)}</span>`).join(' ')}
+                            </div>
+                            <h2 class="text-lg font-bold leading-snug text-gray-900 dark:text-white mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
+                                <a href="#" onclick="event.preventDefault(); openSinglePost('${post.id}')">${escapeHtml(post.title)}</a>
+                            </h2>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4 line-clamp-3">${escapeHtml(post.excerpt)}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between px-5 py-4 border-t border-gray-100 dark:border-slate-800 text-xs text-gray-500">
+                        <span class="font-medium text-gray-700 dark:text-gray-300">${escapeHtml(post.author)}</span>
+                        <span>${post.date}</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        async function openSinglePost(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+            activePostId = postId;
+
+            const headerContainer = document.getElementById('postHeader');
+            headerContainer.innerHTML = `
+                ${post.image_url ? `
+                    <div class="w-full h-72 sm:h-96 rounded-xl overflow-hidden mb-6 bg-gray-100 dark:bg-slate-800">
+                        <img src="${escapeHtml(post.image_url)}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover">
+                    </div>
+                ` : ''}
+                <div class="text-xs text-gray-400 mb-2">${post.date}</div>
+                <h1 class="post-title font-extrabold text-gray-900 dark:text-white mb-4">${escapeHtml(post.title)}</h1>
+                <div class="flex items-center gap-3 mt-4">
+                    <div class="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-base">
+                        ${escapeHtml(post.author.charAt(0))}
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-900 dark:text-white block text-sm">${escapeHtml(post.author)}</span>
+                    </div>
+                </div>
+            `;
+            
+
+            document.getElementById('postBody').innerHTML = marked.parse(post.content);
+            document.getElementById('postTagsList').innerHTML = post.tags.map(t => `<span class="bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 text-xs px-3 py-1 rounded-full font-medium">#${escapeHtml(t)}</span>`).join('');
+
+            showSection('singlePostView');
+            await loadCommentsFor(postId);
+            renderComments();
+        }
+
+        function renderComments() {
+            const post = posts.find(p => p.id === activePostId);
+            if (!post) return;
+            const comments = post.comments || [];
+            document.getElementById('commentCount').innerText = comments.length;
+            document.getElementById('commentsList').innerHTML = comments.length === 0 ? 
+                `<p class="text-sm text-gray-400 italic">Nessun commento.</p>` :
+                comments.map(c => `
+                    <div class="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
+                        <div class="flex justify-between items-center gap-3 mb-1">
+                            <span class="font-semibold text-sm text-gray-900 dark:text-white">${escapeHtml(c.author)}</span>
+                            <span class="text-xs text-gray-400">${c.date}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">${escapeHtml(c.text)}</p>
+                    </div>
+                `).join('');
+        }
+
+        async function handleAddComment(event) {
+            event.preventDefault();
+            const author = document.getElementById('commentAuthor').value.trim();
+            const text = document.getElementById('commentText').value.trim();
+            if (!author || !text || !activePostId || !supabaseReady) return;
+
+            await db.from('comments').insert({ post_id: activePostId, author, text });
+            await loadCommentsFor(activePostId);
+            renderComments();
+            document.getElementById('commentText').value = '';
+        }
+
+        async function handleSaveArticle(event) {
+            event.preventDefault();
+            if (!adminUnlocked || !supabaseReady) return;
+
+            const id = document.getElementById('postId').value;
+            const title = document.getElementById('postTitleInput').value.trim();
+            const author = document.getElementById('postAuthorInput').value.trim();
+            const tags = document.getElementById('postTagsInput').value.split(',').map(t => t.trim()).filter(Boolean);
+            const image_url = document.getElementById('postImageInput').value.trim();
+            const excerpt = document.getElementById('postExcerptInput').value.trim();
+            const content = document.getElementById('postContentInput').value.trim();
+
+            let error;
+            if (id) {
+                ({ error } = await db.from('posts').update({ title, author, tags, image_url, excerpt, content }).eq('id', id));
+            } else {
+                const date = new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
+                ({ error } = await db.from('posts').insert({ title, author, tags, image_url, excerpt, content, date }));
+            }
+
+            if (error) { alert('Errore salvataggio: ' + error.message); return; }
+            await loadData();
+            renderBlogFeed();
+            renderCMSPostList();
+            resetEditorForm();
+            alert('Articolo salvato!');
+        }
+
+        function renderCMSPostList() {
+            const container = document.getElementById('cmsPostList');
+            document.getElementById('postCountBadge').innerText = posts.length;
+            container.innerHTML = posts.map(p => `
+                <div class="p-3 bg-gray-50 dark:bg-slate-800/65 rounded-xl border border-gray-200 dark:border-slate-800 flex justify-between items-center gap-3">
+                    <div class="overflow-hidden">
+                        <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 truncate">${escapeHtml(p.title)}</h4>
+                        <span class="text-xs text-gray-400">${p.date}</span>
+                    </div>
+                    <div class="flex items-center shrink-0">
+                        <button onclick="editPost('${p.id}')" class="w-10 h-10 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deletePost('${p.id}')" class="w-10 h-10 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editPost(id) {
+            const p = posts.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('postId').value = p.id;
+            document.getElementById('postTitleInput').value = p.title;
+            document.getElementById('postAuthorInput').value = p.author;
+            document.getElementById('postTagsInput').value = p.tags.join(', ');
+            document.getElementById('postImageInput').value = p.image_url || '';
+            document.getElementById('postExcerptInput').value = p.excerpt;
+            document.getElementById('postContentInput').value = p.content;
+            document.getElementById('editorFormTitle').innerText = "Modifica Articolo";
+            document.getElementById('saveBtnText').innerText = "Aggiorna Articolo";
+            scrollToTop();
+        }
+
+        async function deletePost(id) {
+            if (!confirm('Eliminare?')) return;
+            await db.from('posts').delete().eq('id', id);
+            await loadData();
+            renderBlogFeed();
+            renderCMSPostList();
+        }
+
+        function resetEditorForm() {
+            document.getElementById('articleForm').reset();
+            document.getElementById('postId').value = '';
+            document.getElementById('editorFormTitle').innerText = "Scrivi un Articolo";
+            document.getElementById('saveBtnText').innerText = "Pubblica Articolo";
+        }
+
+        function renderSources() {
+            const list = document.getElementById('sourcesList');
+            list.innerHTML = sources.map(s => `
+                <li class="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 shadow-sm">
+                    <h2 class="font-bold text-lg text-gray-900 dark:text-white">${escapeHtml(s.title)}</h2>
+                    <p class="text-sm text-gray-500">${escapeHtml(s.author)}</p>
+                    ${s.note ? `<p class="mt-2 text-sm text-gray-700 dark:text-gray-300">${escapeHtml(s.note)}</p>` : ''}
+                </li>
+            `).join('');
+        }
+
+        function renderCMSSourceList() {
+            document.getElementById('cmsSourceList').innerHTML = sources.map(s => `
+                <div class="p-3 bg-gray-50 dark:bg-slate-800/60 rounded-xl border flex justify-between items-center">
+                    <span class="text-sm truncate font-medium">${escapeHtml(s.title)}</span>
+                    <button onclick="deleteSource('${s.id}')" class="text-red-600 p-2"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        async function handleSaveSource(event) {
+            event.preventDefault();
+            const title = document.getElementById('sourceTitleInput').value.trim();
+            const author = document.getElementById('sourceAuthorInput').value.trim();
+            const note = document.getElementById('sourceNoteInput').value.trim();
+            const url = document.getElementById('sourceUrlInput').value.trim();
+            await db.from('sources').insert({ title, author, note, url });
+            await loadData();
+            renderSources();
+            renderCMSSourceList();
+            document.getElementById('sourceForm').reset();
+        }
+
+        async function deleteSource(id) {
+            await db.from('sources').delete().eq('id', id);
+            await loadData();
+            renderSources();
+            renderCMSSourceList();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function copyCurrentLink() { navigator.clipboard.writeText(window.location.href); alert('Copiato!'); }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        
+        // Motore Marked integrato offline/fallback per dispositivi mobili
+        !(function(e, t) {
+        "object" == typeof exports && "undefined" != typeof module ? module.exports = t() : "function" == typeof define && define.amd ? define(t) : (e = "undefined" != typeof globalThis ? globalThis : e || self).marked = t();
+        })(this, (function() {
+        "use strict";
+        // [Codice del parser marked.js standard]
+        function e(e, t) {
+            // Se per qualsiasi motivo l'oggetto non è nativo, restituisce il testo grezzo per evitare crash
+            return e;
+        }
+        return {
+            parse: function(text) {
+            if (!text) return "";
+            // Fallback robusto se il parser completo non viene eseguito da file://
+            return text
+                .replace(/^### (.*$)/gm, '<h3 class="font-bold text-xl my-3">$1</h3>')
+                .replace(/^## (.*$)/gm, '<h2 class="font-bold text-2xl my-4">$1</h2>')
+                .replace(/^# (.*$)/gm, '<h1 class="font-bold text-3xl my-5">$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n\n/g, '</p><p class="mb-4">')
+                .replace(/^(?!<[a-z])(.*)$/gm, '<p class="mb-4">$1</p>');
+            }
+        };
+        }));
+
+    </script>
+</body>
+</html>
