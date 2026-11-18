@@ -7,7 +7,6 @@
     <meta name="color-scheme" content="light dark">
     <title>ricercadellaverità-pursuitoftruth</title>
     <!-- Tailwind CSS -->
-     <!--<script src="https://cdn.tailwindcss.com?plugins=typography"></script> -->
      <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -53,6 +52,15 @@
         })();
     </script>
     <style>
+
+        #postBody blockquote {
+            border-left: 4px solid #3b82f6 !important;
+            padding: 0.75rem 1rem !important;
+            margin: 1.5rem 0 !important;
+            font-style: italic !important;
+            background-color: rgba(59, 130, 246, 0.05) !important;
+            border-radius: 0 0.5rem 0.5rem 0 !important;
+        }
         
         .nav-hidden {
            transform: translateY(-100%);
@@ -150,20 +158,19 @@
         <!-- HEADER PULITO, DIVISO SU DUE FILE SU MOBILE-->
         <header id="mainNavbar" class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-200 dark:border-gray-800">
             <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        
-                <!-- RIGA 1 (Mobile) / LATO SINISTRO (PC): Logo, Titolo completo e Toggle Tema su mobile -->
-                <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                        <img src="https://dlgpvykubqwkryaltwpm.supabase.co/storage/v1/object/public/avatars/20260910_141440_compressed.png" alt="Logo" class="w-9 h-9 rounded-full object-cover shrink-0">
-                        <span class="font-bold text-base sm:text-lg text-gray-900 dark:text-white leading-tight">
-                        Ricercadellaverità-pursuitoftruth
-                        </span>
-                    </div>
+                    <!-- RIGA 1 (Mobile) / LATO SINISTRO (PC): Logo, Titolo completo e Toggle Tema su mobile -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <img src="https://dlgpvykubqwkryaltwpm.supabase.co/storage/v1/object/public/avatars/20260910_141440_compressed.png" alt="Logo" class="w-9 h-9 rounded-full object-cover shrink-0">
+                            <span class="font-bold text-base sm:text-lg text-gray-900 dark:text-white leading-tight">
+                            Ricercadellaverità-pursuitoftruth
+                            </span>
+                        </div>
 
-                    <!-- Toggle Tema visibile solo su mobile qui in alto a destra -->
-                    <button onclick="toggleDarkMode()" class="md:hidden p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0" aria-label="Cambia tema">
-                        <i class="fas fa-moon"></i>
-                    </button>
+                        <!-- Toggle Tema visibile solo su mobile qui in alto a destra -->
+                        <button onclick="toggleDarkMode()" class="md:hidden p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0" aria-label="Cambia tema">
+                            <i class="fas fa-moon"></i>
+                        </button>
             </div>
 
             <!-- RIGA 2 (Mobile) / CENTRO E DESTRA (PC): Toggle Tema PC, Link e Ricerca -->
@@ -176,10 +183,10 @@
                     </button>
 
                     <nav class="flex items-center justify-around sm:justify-start w-full sm:w-auto gap-4">
-                    <a href="#home" class="hover:text-blue-600 dark:hover:text-blue-400">Home</a>
-                    <a href="#articoli" class="hover:text-blue-600 dark:hover:text-blue-400">Articoli</a>
-                    <a href="#fonti" class="hover:text-blue-600 dark:hover:text-blue-400">Fonti</a>
-                    <a href="#contatti" class="hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
+                    <a href="#home" onclick="goHome(); return false;" class="hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+                    <!--<a href="#articoli" class="hover:text-blue-600 dark:hover:text-blue-400">Articoli</a>-->
+                    <!--<a href="#fonti" onclick="sources()"; return false;" class="hover:text-blue-600 dark:hover:text-blue-400">Fonti</a>-->
+                    <a href="#contatti" class="hover:text-blue-600 dark:hover:text-blue-400">Contacts</a>
                     </nav>
                 </div>
 
@@ -420,15 +427,15 @@
         const SUPABASE_KEY = 'sb_publishable_poleYS8pxAE2Kr6KW15-vg__cSXf123';
 
         function toggleDarkMode() {
-    const isDark = document.documentElement.classList.toggle('dark');
-    document.documentElement.classList.toggle('light', !isDark);
-    localStorage.setItem('blog_theme', isDark ? 'dark' : 'light');
+            const isDark = document.documentElement.classList.toggle('dark');
+            document.documentElement.classList.toggle('light', !isDark);
+            localStorage.setItem('blog_theme', isDark ? 'dark' : 'light');
     
-    const icon = document.getElementById('themeIcon');
-    if (icon) {
-        icon.className = isDark ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
-    }
-}
+        const icon = document.getElementById('themeIcon');
+            if (icon) {
+                icon.className = isDark ? 'fa-solid fa-sun text-lg' : 'fa-solid fa-moon text-lg';
+            }
+        }
 
 document.addEventListener('DOMContentLoaded', () => {
     const currentDark = document.documentElement.classList.contains('dark');
@@ -945,22 +952,35 @@ document.addEventListener('DOMContentLoaded', () => {
             // Se per qualsiasi motivo l'oggetto non è nativo, restituisce il testo grezzo per evitare crash
             return e;
         }
+            
         return {
             parse: function(text) {
             if (!text) return "";
-            // Fallback robusto se il parser completo non viene eseguito da file://
+            
+            // 1. Unisce le righe della citazione in un flusso continuo, rimuove gli asterischi sparsi e applica il corsivo uniforme
+            text = text.replace(/(?:^>[ \t]?.*(?:\r?\n|$))+/gm, function(match) {
+                let cleanQuote = match.replace(/^>[ \t]?/gm, '')
+                                    .replace(/\r?\n/g, ' ') // Unisce le righe spezzate da StackEdit
+                                    .replace(/\s+/g, ' ')
+                                    .replace(/\*/g, '')
+                                    .trim();
+                return `<blockquote class="border-l-4 border-blue-500 pl-4 py-3 my-5 italic text-base bg-gray-50 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 rounded-r-lg leading-relaxed">${cleanQuote}</blockquote>\n\n`;
+            });
+
+            // 2. Titoli, grassetti e corsivi per il resto dell'articolo
             return text
                 .replace(/^### (.*$)/gm, '<h3 class="font-bold text-xl my-3">$1</h3>')
                 .replace(/^## (.*$)/gm, '<h2 class="font-bold text-2xl my-4">$1</h2>')
                 .replace(/^# (.*$)/gm, '<h1 class="font-bold text-3xl my-5">$1</h1>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\n\n/g, '</p><p class="mb-4">')
+                .replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*([\s\S]*?)\*/g, '<em>$1</em>')
+                .replace(/\n\n+/g, '</p><p class="mb-4">')
                 .replace(/^(?!<[a-z])(.*)$/gm, '<p class="mb-4">$1</p>');
             }
         };
-        }));
 
+        }));
+        //effetto per far sparire la barra in alto mentre si scrolla l'articolo su dispositivi mobili
         let lastScrollTop = 0;
             const navbar = document.getElementById('mainNavbar');
 
@@ -984,6 +1004,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         );
 
+    
+        
     </script>
 </body>
 </html>
